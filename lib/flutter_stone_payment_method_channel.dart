@@ -3,67 +3,34 @@ import 'package:flutter/services.dart';
 import 'package:flutter_stone_payment/models/payment_payload.dart';
 import 'package:flutter_stone_payment/models/payment_response.dart';
 
+import 'constants/payment_error.dart';
+import 'exceptions/payment_exception.dart';
 import 'flutter_stone_payment_platform_interface.dart';
 
 class MethodChannelFlutterStonePayment extends FlutterStonePaymentPlatform {
-  MethodChannel? methodChannel;
+  final methodChannel = const MethodChannel('flutter_stone_payment');
 
   @override
   Future<PaymentResponse> pay({required PaymentPayload paymentPayload}) async {
     try {
-      methodChannel = const MethodChannel('flutter_stone_payment');
+      final response = await methodChannel?.invokeMethod<Map>('pay', paymentPayload.toJson());
 
-      final json = await methodChannel?.invokeMethod<Map>('pay', paymentPayload.toJson());
-
-      print(json);
-
-      return PaymentResponse(
-          cardholderName: '',
-          itk: '',
-          atk: '',
-          brand: '',
-          authorizationDateTime: '',
-          orderId: 'orderId',
-          authorizationCode: 'authorizationCode',
-          installmentCount: 'installmentCount',
-          pan: 'pan',
-          type: 'type',
-          entryMode: 'entryMode',
-          accountId: 'accountId',
-          customerWalletProviderId: 'customerWalletProviderId',
-          code: 'code',
-          transactionQualifier: 'transactionQualifier',
-          amount: '1000');
-      // if (json is Map) {
-      //   if (json['code'] == PaymentError.SUCCESS.name) {
-      //      return PaymentResponse(
-      //       cardholderName: '',
-      //       itk: '',
-      //       atk: '',
-      //       brand: '',
-      //       authorizationDateTime: '',
-      //       orderId: 'orderId',
-      //       authorizationCode: 'authorizationCode',
-      //       installmentCount: 'installmentCount',
-      //       pan: 'pan',
-      //       type: 'type',
-      //       entryMode: 'entryMode',
-      //       accountId: 'accountId',
-      //       customerWalletProviderId: 'customerWalletProviderId',
-      //       code: 'code',
-      //       transactionQualifier: 'transactionQualifier',
-      //       amount: '1000');
-      //   } else if () {
-
-      //   }
-
-      // } else {
-      //   throw PaymentException(message: 'Invalid response');
-      // }
+      if (response is Map) {
+        if (response['code'] == PaymentError.SUCCESS.name) {
+          final jsonData = response['data'];
+          return PaymentResponse.fromJson(jsonData);
+        } else {
+          throw PaymentException(message: response['message']);
+        }
+      } else {
+        throw PaymentException(message: 'invalid response');
+      }
+    } on PaymentException catch (e) {
+      throw PaymentException(message: e.message);
+    } on PlatformException catch (e) {
+      throw PaymentException(message: e.message ?? 'PlatformException');
     } catch (e) {
-      throw Exception(e);
-    } finally {
-      methodChannel?.setMethodCallHandler(null);
+      throw PaymentException(message: e.toString());
     }
   }
 }
