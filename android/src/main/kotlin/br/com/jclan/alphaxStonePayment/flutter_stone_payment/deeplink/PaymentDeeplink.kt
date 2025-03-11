@@ -63,13 +63,13 @@ class PaymentDeeplink: Deeplink {
     }
 
     override fun validateIntent(intent: Intent?): Map<String, Any?> {
-        return try {
+        try {
             val returnUri: Uri? = intent?.data
             if (returnUri != null) {
                 val code = returnUri.getQueryParameter("code")
                 val success = returnUri.getQueryParameter("success")
                 if (code == "0") {
-                    mapOf(
+                    return mapOf(
                         "code" to "SUCCESS",
                         "data" to mapOf(
                             "cardholder_name" to returnUri.getQueryParameter("cardholder_name"),
@@ -92,24 +92,24 @@ class PaymentDeeplink: Deeplink {
                     )
                 } else if (success == "false") {
                     val message = returnUri.getQueryParameter("message") ?: "Unauthorized"
-                    mapOf(
+                    return mapOf(
                         "code" to "ERROR",
                         "message" to message
                     )
                 } else {
-                    mapOf(
+                    return mapOf(
                         "code" to "ERROR",
                         "message" to "Unauthorized"
                     )
                 }
             } else {
-                mapOf(
+                return mapOf(
                     "code" to "ERROR",
                     "message" to "No data return of intent"
                 )
             }
         } catch (e: Exception) {
-            mapOf(
+            return mapOf(
                 "code" to "ERROR",
                 "message" to e.toString()
             )

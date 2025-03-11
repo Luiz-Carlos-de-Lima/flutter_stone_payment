@@ -1,6 +1,7 @@
 package br.com.jclan.alphaxStonePayment.flutter_stone_payment
 
 import android.app.Activity
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import br.com.jclan.alphaxStonePayment.flutter_stone_payment.deeplink.CancelDeeplink
@@ -18,12 +19,15 @@ import io.flutter.plugin.common.MethodChannel.Result
 
 class FlutterStonePaymentPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   private lateinit var channel: MethodChannel
+
+  private val paymentDeeplink = PaymentDeeplink()
+  private val cancelDeeplink = CancelDeeplink()
+  private val printDeeplink = PrintDeeplink()
+  private val reprintDeeplink = ReprintDeeplink()
+
   private var binding: ActivityPluginBinding? = null
   private var resultScope: Result? = null
-  private var paymentDeeplink = PaymentDeeplink()
-  private var cancelDeeplink = CancelDeeplink()
-  private var printDeeplink = PrintDeeplink()
-  private var reprintDeeplink = ReprintDeeplink()
+
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "flutter_stone_payment")
@@ -36,7 +40,7 @@ class FlutterStonePaymentPlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
 
   override fun onAttachedToActivity(newBinding: ActivityPluginBinding) {
     binding = newBinding
-    binding?.addOnNewIntentListener { intent ->
+    binding?.addOnNewIntentListener { intent: Intent ->
       val uri: Uri? = intent.data
       if (uri != null && uri.scheme != null) {
         if (uri.scheme.equals("return_payment")) {
@@ -75,11 +79,11 @@ class FlutterStonePaymentPlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
       "pay" -> {
         val bundle = Bundle().apply {
           putString("amount", call.argument<String>("amount"))
-          putString("transaction_type", call.argument<String>("transactionType"))
-          putString("installment_type", call.argument<String>("installmentType"))
-          putString("installment_count", call.argument<String>("installmentCount"))
-          putString("order_id", call.argument<String>("orderId"))
-          putBoolean("editable_amount", call.argument<Boolean?>("editableAmount") ?: false)
+          putString("transaction_type", call.argument<String>("transaction_type"))
+          putString("installment_type", call.argument<String>("installment_type"))
+          putString("installment_count", call.argument<String>("installment_count"))
+          putString("order_id", call.argument<String>("order_id"))
+          putBoolean("editable_amount", call.argument<Boolean?>("editable_amount") ?: false)
         }
         starDeeplink(paymentDeeplink, bundle)
       }
@@ -87,7 +91,7 @@ class FlutterStonePaymentPlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
         val bundle = Bundle().apply {
           putString("amount", call.argument<String>("amount"))
           putString("atk", call.argument<String>("atk"))
-          putBoolean("editable_amount", call.argument<Boolean?>("editableAmount") ?: false)
+          putBoolean("editable_amount", call.argument<Boolean?>("editable_amount") ?: false)
         }
         starDeeplink(cancelDeeplink, bundle)
       }
@@ -127,7 +131,7 @@ class FlutterStonePaymentPlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
     if (paymentData["code"] == "SUCCESS") {
       resultScope?.success(paymentData["data"])
     } else {
-      val message: String = (paymentData["message"] ?: "Payment error").toString()
+      val message: String = (paymentData["message"] ?: "result error").toString()
       resultScope?.error((paymentData["code"] ?: "ERROR").toString(), message, null)
     }
   }
