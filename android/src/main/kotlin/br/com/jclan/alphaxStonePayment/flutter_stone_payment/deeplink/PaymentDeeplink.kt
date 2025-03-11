@@ -3,26 +3,25 @@ package br.com.jclan.alphaxStonePayment.flutter_stone_payment.deeplink
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 
-class PaymentDeeplink() {
-    fun call(binding: ActivityPluginBinding ,bundle: Bundle) : Bundle {
+class PaymentDeeplink: Deeplink {
+    override fun startDeeplink(binding: ActivityPluginBinding ,bundle: Bundle) : Bundle {
         try {
             val amount: String? = bundle.getString("amount")
             val transactionType: String? = bundle.getString("transaction_type")
             val orderId: String? = bundle.getString("order_id")
             val installmentType: String? = bundle.getString("installment_type")
             val installmentCount: String? = bundle.getString("installment_count")
+            val returnIntentName: String = "return_payment"
 
-            if (amount == null) {
-                throw IllegalArgumentException("Invalid payment data: amount")
-            }
-            if (transactionType == null) {
-                throw IllegalArgumentException("Invalid payment data: transaction_type")
-            }
+            var editableAmount: String = "0"
+
             if (orderId == null) {
                 throw IllegalArgumentException("Invalid payment data: orderId")
+            }
+            if (bundle.getBoolean("editable_amount")) {
+                editableAmount = "1"
             }
 
             val uriBuilder = Uri.Builder().apply {
@@ -31,8 +30,8 @@ class PaymentDeeplink() {
                 appendQueryParameter("amount", amount)
                 appendQueryParameter("transaction_type", transactionType)
                 appendQueryParameter("order_id", orderId)
-                appendQueryParameter("editable_amount", "0")
-                appendQueryParameter("return_scheme", "return_payment")
+                appendQueryParameter("editable_amount", editableAmount)
+                appendQueryParameter("return_scheme", returnIntentName)
             }
 
             if (installmentType != null) {
@@ -63,57 +62,57 @@ class PaymentDeeplink() {
         }
     }
 
-    fun validateIntent(intent: Intent?) : Bundle {
-        try {
+    override fun validateIntent(intent: Intent?): Map<String, Any?> {
+        return try {
             val returnUri: Uri? = intent?.data
             if (returnUri != null) {
                 val code = returnUri.getQueryParameter("code")
                 val success = returnUri.getQueryParameter("success")
                 if (code == "0") {
-                   return Bundle().apply {
-                        putString("code", "SUCCESS")
-                        putBundle("data", Bundle().apply {
-                            putString("cardholder_name", returnUri.getQueryParameter("cardholder_name"))
-                            putString("itk", returnUri.getQueryParameter("itk"))
-                            putString("atk", returnUri.getQueryParameter("atk"))
-                            putString("authorization_date_time", returnUri.getQueryParameter("authorization_date_time"))
-                            putString("brand", returnUri.getQueryParameter("brand"))
-                            putString("order_id", returnUri.getQueryParameter("order_id"))
-                            putString("authorization_code", returnUri.getQueryParameter("authorization_code"))
-                            putString("installment_count", returnUri.getQueryParameter("installment_count"))
-                            putString("pan", returnUri.getQueryParameter("pan"))
-                            putString("type", returnUri.getQueryParameter("type"))
-                            putString("entry_mode", returnUri.getQueryParameter("entry_mode"))
-                            putString("account_id", returnUri.getQueryParameter("account_id"))
-                            putString("customer_wallet_provider_id", returnUri.getQueryParameter("customer_wallet_provider_id"))
-                            putString("code", returnUri.getQueryParameter("code"))
-                            putString("transaction_qualifier", returnUri.getQueryParameter("transaction_qualifier"))
-                            putString("amount", returnUri.getQueryParameter("amount"))
-                        })
-                    }
+                    mapOf(
+                        "code" to "SUCCESS",
+                        "data" to mapOf(
+                            "cardholder_name" to returnUri.getQueryParameter("cardholder_name"),
+                            "itk" to returnUri.getQueryParameter("itk"),
+                            "atk" to returnUri.getQueryParameter("atk"),
+                            "authorization_date_time" to returnUri.getQueryParameter("authorization_date_time"),
+                            "brand" to returnUri.getQueryParameter("brand"),
+                            "order_id" to returnUri.getQueryParameter("order_id"),
+                            "authorization_code" to returnUri.getQueryParameter("authorization_code"),
+                            "installment_count" to returnUri.getQueryParameter("installment_count"),
+                            "pan" to returnUri.getQueryParameter("pan"),
+                            "type" to returnUri.getQueryParameter("type"),
+                            "entry_mode" to returnUri.getQueryParameter("entry_mode"),
+                            "account_id" to returnUri.getQueryParameter("account_id"),
+                            "customer_wallet_provider_id" to returnUri.getQueryParameter("customer_wallet_provider_id"),
+                            "code" to returnUri.getQueryParameter("code"),
+                            "transaction_qualifier" to returnUri.getQueryParameter("transaction_qualifier"),
+                            "amount" to returnUri.getQueryParameter("amount")
+                        )
+                    )
                 } else if (success == "false") {
-                    val message = returnUri.getQueryParameter("message")
-                    return Bundle().apply {
-                        putString("code", "ERROR")
-                        putString("message", message ?: "Unauthorized")
-                    }
+                    val message = returnUri.getQueryParameter("message") ?: "Unauthorized"
+                    mapOf(
+                        "code" to "ERROR",
+                        "message" to message
+                    )
                 } else {
-                    return Bundle().apply {
-                        putString("code", "ERROR")
-                        putString("message", "Unauthorized")
-                    }
+                    mapOf(
+                        "code" to "ERROR",
+                        "message" to "Unauthorized"
+                    )
                 }
-            }  else {
-                return Bundle().apply {
-                    putString("code", "ERROR")
-                    putString("message", "No data return of intent")
-                }
+            } else {
+                mapOf(
+                    "code" to "ERROR",
+                    "message" to "No data return of intent"
+                )
             }
         } catch (e: Exception) {
-            return Bundle().apply {
-                putString("code", "ERROR")
-                putString("message", e.toString())
-            }
+            mapOf(
+                "code" to "ERROR",
+                "message" to e.toString()
+            )
         }
     }
 }

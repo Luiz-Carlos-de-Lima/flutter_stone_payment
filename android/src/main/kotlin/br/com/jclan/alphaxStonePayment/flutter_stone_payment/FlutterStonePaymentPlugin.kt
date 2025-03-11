@@ -3,8 +3,11 @@ package br.com.jclan.alphaxStonePayment.flutter_stone_payment
 import android.app.Activity
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
+import br.com.jclan.alphaxStonePayment.flutter_stone_payment.deeplink.CancelDeeplink
+import br.com.jclan.alphaxStonePayment.flutter_stone_payment.deeplink.Deeplink
 import br.com.jclan.alphaxStonePayment.flutter_stone_payment.deeplink.PaymentDeeplink
+import br.com.jclan.alphaxStonePayment.flutter_stone_payment.deeplink.PrintDeeplink
+import br.com.jclan.alphaxStonePayment.flutter_stone_payment.deeplink.ReprintDeeplink
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -14,11 +17,13 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 
 class FlutterStonePaymentPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
-
   private lateinit var channel: MethodChannel
   private var binding: ActivityPluginBinding? = null
   private var resultScope: Result? = null
   private var paymentDeeplink = PaymentDeeplink()
+  private var cancelDeeplink = CancelDeeplink()
+  private var printDeeplink = PrintDeeplink()
+  private var reprintDeeplink = ReprintDeeplink()
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "flutter_stone_payment")
@@ -33,9 +38,14 @@ class FlutterStonePaymentPlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
     binding = newBinding
     binding?.addOnNewIntentListener { intent ->
       val uri: Uri? = intent.data
-      if (uri != null && uri.scheme != null && uri.scheme.equals("return_payment")) {
-        val bundle: Bundle = paymentDeeplink.validateIntent(intent)
-        paymentResult(bundle)
+      if (uri != null && uri.scheme != null) {
+        if (uri.scheme.equals("return_payment")) {
+          val payment: Map<String, Any?> = paymentDeeplink.validateIntent(intent)
+          sendResultData(payment)
+        } else if (uri.scheme.equals("return_cancel")) {
+          val cancel: Map<String, Any?> = cancelDeeplink.validateIntent(intent)
+          sendResultData(cancel)
+        }
       }
       true
     }
@@ -54,24 +64,47 @@ class FlutterStonePaymentPlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
   }
 
   override fun onMethodCall(call: MethodCall, result: Result) {
+    resultScope = result
+
+    if ((binding?.activity is Activity).not()) {
+      resultScope!!.error("UNAVAILABLE", "Activity is not available", null)
+      return
+    }
+
     when (call.method) {
       "pay" -> {
-        if ((binding?.activity is Activity).not()) {
-          result.error("UNAVAILABLE", "Activity is not available", null)
-          return
-        }
-
-        resultScope = result
-
         val bundle = Bundle().apply {
           putString("amount", call.argument<String>("amount"))
           putString("transaction_type", call.argument<String>("transactionType"))
           putString("installment_type", call.argument<String>("installmentType"))
           putString("installment_count", call.argument<String>("installmentCount"))
           putString("order_id", call.argument<String>("orderId"))
+          putBoolean("editable_amount", call.argument<Boolean?>("editableAmount") ?: false)
         }
-
-        paymentDeeplink.call(binding!!, bundle)
+        starDeeplink(paymentDeeplink, bundle)
+      }
+      "cancel" -> {
+        val bundle = Bundle().apply {
+          putString("amount", call.argument<String>("amount"))
+          putString("atk", call.argument<String>("atk"))
+          putBoolean("editable_amount", call.argument<Boolean?>("editableAmount") ?: false)
+        }
+        starDeeplink(cancelDeeplink, bundle)
+      }
+//      "print" -> {
+//        val bundle = Bundle().apply {
+//          putBoolean("show_feedback_screen", call.argument<Boolean>("showFeedbackScreen") ?: false)
+//          put("printable_content", call.argument<Map<String, Any?>>("atk"))
+//        }
+//        starDeeplink(printDeeplink, bundle)
+//      }
+      "reprint" -> {
+        val bundle = Bundle().apply {
+          putBoolean("show_feedback_screen", call.argument<Boolean>("showFeedbackScreen") ?: false)
+          putString("atk", call.argument<String>("atk"))
+          putString("type_customer", call.argument<String>("typeCustomer"))
+        }
+        starDeeplink(reprintDeeplink, bundle)
       }
       else ->  {
         resultScope?.notImplemented()
@@ -80,38 +113,22 @@ class FlutterStonePaymentPlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
     return
   }
 
-  private fun paymentResult(bundle: Bundle) {
-    val code: String? = bundle.getString("code")
+  private fun starDeeplink(deeplink: Deeplink, bundle: Bundle) {
+    val bundleStartDeeplink: Bundle = deeplink.startDeeplink(binding!!, bundle)
+    val code: String = bundleStartDeeplink.getString("code") ?: "ERROR"
 
-    if (code == "SUCCESS") {
-      val dataBundle = bundle.getBundle("data")
+    if (code == "ERROR") {
+      val message: String = (bundleStartDeeplink.getString("message") ?: "start deeplink error").toString()
+      resultScope?.error(code, message, null)
+    }
+  }
 
-      val resultMap = mapOf(
-        "code" to code,
-        "data" to mapOf(
-          "cardholder_name" to dataBundle?.getString("cardholder_name"),
-          "itk" to dataBundle?.getString("itk"),
-          "atk" to dataBundle?.getString("atk"),
-          "brand" to dataBundle?.getString("brand"),
-          "authorization_date_time" to dataBundle?.getString("authorization_date_time"),
-          "order_id" to dataBundle?.getString("order_id"),
-          "authorization_code" to dataBundle?.getString("authorization_code"),
-          "installment_count" to dataBundle?.getString("installment_count"),
-          "pan" to dataBundle?.getString("pan"),
-          "type" to dataBundle?.getString("type"),
-          "entry_mode" to dataBundle?.getString("entry_mode"),
-          "account_id" to dataBundle?.getString("account_id"),
-          "customer_wallet_provider_id" to dataBundle?.getString("customer_wallet_provider_id"),
-          "code" to dataBundle?.getString("code"),
-          "transaction_qualifier" to dataBundle?.getString("transaction_qualifier"),
-          "amount" to dataBundle?.getString("amount")
-        )
-      )
-
-      resultScope?.success(resultMap)
+  private fun sendResultData(paymentData: Map<String, Any?>) {
+    if (paymentData["code"] == "SUCCESS") {
+      resultScope?.success(paymentData["data"])
     } else {
-        val message = bundle.getString("message") ?: "Payment error"
-        resultScope?.error(code ?: "ERROR", message, null)
+      val message: String = (paymentData["message"] ?: "Payment error").toString()
+      resultScope?.error((paymentData["code"] ?: "ERROR").toString(), message, null)
     }
   }
 }
