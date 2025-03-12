@@ -54,4 +54,25 @@ class PaymentResponse {
       amount: json['amount'],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'cardholder_name': cardholderName,
+      'itk': itk,
+      'atk': atk,
+      'brand': brand,
+      'authorization_date_time': authorizationDateTime,
+      'order_id': orderId,
+      'authorization_code': authorizationCode,
+      'installment_count': installmentCount,
+      'pan': pan,
+      'type': type,
+      'entry_mode': entryMode,
+      'account_id': accountId,
+      'customer_wallet_provider_id': customerWalletProviderId,
+      'code': code,
+      'transaction_qualifier': transactionQualifier,
+      'amount': amount,
+    };
+  }
 }

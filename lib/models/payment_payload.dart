@@ -10,19 +10,26 @@ class PaymentPayload {
   final String orderId;
 
   PaymentPayload({this.amount, this.transactionType, this.installmentType, this.installmentCount, this.editableAmount = false, required this.orderId})
-      : assert(!(transactionType == TransactionType.CREDIT && installmentType == null && installmentCount == null),
-            'InstallmentType and InstallmentCount must be provided for CREDIT transactionType'),
-        assert(!(transactionType == TransactionType.CREDIT && !(installmentCount != null && installmentCount > 0)),
-            'InstallmentCount must be greater than 0 for CREDIT transactionType'),
-        assert(!(transactionType != TransactionType.CREDIT && installmentType != null && installmentCount != null),
-            'installmentType and installmentCount must be null for DEBIT, INSTANT_PAYMENT, VOUCHER and PIX transactionType');
-
+      : assert(
+          !(transactionType == TransactionType.CREDIT &&
+              (installmentType == InstallmentType.MERCHANT || installmentType == InstallmentType.ISSUER) &&
+              (installmentCount == null || installmentCount <= 1)),
+          'installmentCount must be greater than 1 when installmentType is MERCHANT or ISSUER for CREDIT transactionType.',
+        ),
+        assert(
+          !(transactionType == TransactionType.CREDIT && installmentType == InstallmentType.NONE && (installmentCount != null && installmentCount != 1)),
+          'installmentCount must be 1 or null when installmentType is NONE for CREDIT transactionType.',
+        ),
+        assert(
+          !(transactionType != TransactionType.CREDIT && (installmentType != null || installmentCount != null)),
+          'installmentType and installmentCount must be null for DEBIT, INSTANT_PAYMENT, VOUCHER, and PIX transactionType.',
+        );
   Map<String, dynamic> toJson() {
     return {
-      'amount': amount is double ? (amount! * 100).toInt().toString() : null,
+      'amount': amount is double ? (amount! * 100).toInt().toString() : '0',
       'transaction_type': transactionType?.name,
       'installment_type': installmentType?.name,
-      'installment_count': installmentCount?.toString(),
+      'installment_count': installmentType != null ? installmentCount?.toString() : null,
       'editable_amount': amount is double ? editableAmount : true,
       'order_id': orderId,
     };
