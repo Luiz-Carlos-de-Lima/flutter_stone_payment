@@ -17,6 +17,9 @@ class PaymentDeeplink: Deeplink {
 
             var editableAmount: String = "0"
 
+            if (amount == null) {
+                throw IllegalArgumentException("Invalid payment details: amount, amount must be between 0 and 999999999.")
+            }
             if (orderId == null) {
                 throw IllegalArgumentException("Invalid payment data: orderId")
             }

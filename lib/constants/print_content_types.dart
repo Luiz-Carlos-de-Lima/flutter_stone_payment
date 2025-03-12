@@ -1,5 +1,5 @@
-enum Type { text, line, image }
+enum PrintType { text, line, image }
 
-enum Align { center, right, left }
+enum PrintAlign { center, right, left }
 
-enum Size { big, medium, small }
+enum PrintSize { big, medium, small }

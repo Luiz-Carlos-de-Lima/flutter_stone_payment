@@ -12,6 +12,9 @@ class CancelDeeplink: Deeplink {
             val atk: String? = bundle.getString("atk")
             val editableAmount: Boolean = bundle.getBoolean("editable_amount")
 
+            if (amount == null) {
+                throw IllegalArgumentException("Invalid cancel details: amount, amount must be between 0 and 999999999.")
+            }
             if (atk == null) {
                 throw IllegalArgumentException("Invalid cancel data: atk")
             }

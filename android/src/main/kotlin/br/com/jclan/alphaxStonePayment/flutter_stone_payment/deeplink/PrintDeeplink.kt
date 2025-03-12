@@ -15,8 +15,7 @@ class PrintDeeplink: Deeplink {
                 ?: throw IllegalArgumentException("Invalid print data: printable_content")
 
             for (content: Bundle in printableContent) {
-                val type: String? = bundle.getString("type")
-
+                val type: String? = content.getString("type")
                 if (type == "text") {
                     val contentOfType: String? = content.getString("content")
                     val align: String? = content.getString("align")

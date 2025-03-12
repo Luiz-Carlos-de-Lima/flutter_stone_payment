@@ -7,7 +7,7 @@ class CancelPayload {
 
   Map<String, dynamic> toJson() {
     return {
-      'amount': amount is double ? (amount! * 100).toInt().toString() : null,
+      'amount': amount is double ? (amount! * 100).toInt().toString() : '0',
       'atk': atk,
       'editable_amount': amount is double ? editableAmount : true,
     };
