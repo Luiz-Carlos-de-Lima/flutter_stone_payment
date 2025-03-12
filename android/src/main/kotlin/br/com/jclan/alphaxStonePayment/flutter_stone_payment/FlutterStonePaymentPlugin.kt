@@ -49,6 +49,12 @@ class FlutterStonePaymentPlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
         } else if (uri.scheme.equals("return_cancel")) {
           val cancel: Map<String, Any?> = cancelDeeplink.validateIntent(intent)
           sendResultData(cancel)
+        } else if (uri.scheme.equals("return_print")) {
+          val cancel: Map<String, Any?> = printDeeplink.validateIntent(intent)
+          sendResultData(cancel)
+        } else if (uri.scheme.equals("return_reprint")) {
+          val cancel: Map<String, Any?> = reprintDeeplink.validateIntent(intent)
+          sendResultData(cancel)
         }
       }
       true
