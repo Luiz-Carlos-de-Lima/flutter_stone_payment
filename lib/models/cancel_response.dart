@@ -1,4 +1,4 @@
-class CancelPayload {
+class CancelResponse {
   final String responseCode;
   final String atk;
   final String canceledAmount;
@@ -8,7 +8,7 @@ class CancelPayload {
   final String authorizationCode;
   final String reason;
 
-  CancelPayload(
+  CancelResponse(
       {required this.responseCode,
       required this.atk,
       required this.canceledAmount,
@@ -31,8 +31,8 @@ class CancelPayload {
     };
   }
 
-  static CancelPayload fromJson(Map<String, dynamic> json) {
-    return CancelPayload(
+  static CancelResponse fromJson(Map<String, dynamic> json) {
+    return CancelResponse(
       responseCode: json['response_code'],
       atk: json['atk'],
       canceledAmount: json['canceled_amount'],

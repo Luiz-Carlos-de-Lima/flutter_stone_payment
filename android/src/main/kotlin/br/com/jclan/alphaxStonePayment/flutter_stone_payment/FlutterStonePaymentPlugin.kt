@@ -95,23 +95,24 @@ class FlutterStonePaymentPlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
         }
         starDeeplink(cancelDeeplink, bundle)
       }
-//      "print" -> {
-//        val bundle = Bundle().apply {
-//          putBoolean("show_feedback_screen", call.argument<Boolean>("showFeedbackScreen") ?: false)
-//          put("printable_content", call.argument<Map<String, Any?>>("atk"))
-//        }
-//        starDeeplink(printDeeplink, bundle)
-//      }
+      "print" -> {
+        val bundle = Bundle().apply {
+          putBoolean("show_feedback_screen", call.argument<Boolean>("show_feedback_screen") ?: false)
+          val listPrintContent: List<HashMap<String, Any?>>? = call.argument<List<HashMap<String, Any?>>>("printable_content")
+          putParcelableArrayList("printable_content", listPrintContent?.toBundleList())
+        }
+        starDeeplink(printDeeplink, bundle)
+      }
       "reprint" -> {
         val bundle = Bundle().apply {
-          putBoolean("show_feedback_screen", call.argument<Boolean>("showFeedbackScreen") ?: false)
+          putBoolean("show_feedback_screen", call.argument<Boolean>("show_feedback_screen") ?: false)
           putString("atk", call.argument<String>("atk"))
-          putString("type_customer", call.argument<String>("typeCustomer"))
+          putString("type_customer", call.argument<String>("type_customer"))
         }
         starDeeplink(reprintDeeplink, bundle)
       }
       else ->  {
-        resultScope?.notImplemented()
+        resultScope?.error("ERROR", "Value of ", null)
       }
     }
     return
@@ -134,5 +135,32 @@ class FlutterStonePaymentPlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
       val message: String = (paymentData["message"] ?: "result error").toString()
       resultScope?.error((paymentData["code"] ?: "ERROR").toString(), message, null)
     }
+  }
+
+  private fun List<Map<String, Any?>>.toBundleList(): ArrayList<Bundle> {
+    val bundleList = ArrayList<Bundle>()
+    for (map in this) {
+      bundleList.add(map.toBundle())
+    }
+    return bundleList
+  }
+
+  private fun Map<String, Any?>.toBundle(): Bundle {
+    val bundle = Bundle()
+    for ((key, value) in this) {
+      when (value) {
+        is String -> bundle.putString(key, value)
+        is Int -> bundle.putInt(key, value)
+        is Boolean -> bundle.putBoolean(key, value)
+        is Double -> bundle.putDouble(key, value)
+        is Float -> bundle.putFloat(key, value)
+        is Long -> bundle.putLong(key, value)
+        is Map<*, *> -> {
+          @Suppress("UNCHECKED_CAST")
+          bundle.putBundle(key, (value as? Map<String, Any?>)?.toBundle())
+        }
+      }
+    }
+    return bundle
   }
 }

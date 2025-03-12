@@ -111,7 +111,7 @@ class PaymentDeeplink: Deeplink {
         } catch (e: Exception) {
             return mapOf(
                 "code" to "ERROR",
-                "message" to e.toString()
+                "message" to e.message.toString()
             )
         }
     }

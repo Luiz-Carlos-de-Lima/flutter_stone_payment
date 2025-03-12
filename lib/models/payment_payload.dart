@@ -12,14 +12,9 @@ class PaymentPayload {
   PaymentPayload({this.amount, this.transactionType, this.installmentType, this.installmentCount, this.editableAmount = false, required this.orderId})
       : assert(!(transactionType == TransactionType.CREDIT && installmentType == null && installmentCount == null),
             'InstallmentType and InstallmentCount must be provided for CREDIT transactionType'),
-        assert(!(transactionType == TransactionType.CREDIT && installmentCount == 0), 'InstallmentCount must be greater than 0 for CREDIT transactionType'),
-        assert(
-            !((transactionType == TransactionType.DEBIT ||
-                    transactionType == TransactionType.INSTANT_PAYMENT ||
-                    transactionType == TransactionType.VOUCHER ||
-                    transactionType == TransactionType.PIX) &&
-                installmentType != null &&
-                installmentCount != null),
+        assert(!(transactionType == TransactionType.CREDIT && !(installmentCount != null && installmentCount > 0)),
+            'InstallmentCount must be greater than 0 for CREDIT transactionType'),
+        assert(!(transactionType != TransactionType.CREDIT && installmentType != null && installmentCount != null),
             'installmentType and installmentCount must be null for DEBIT, INSTANT_PAYMENT, VOUCHER and PIX transactionType');
 
   Map<String, dynamic> toJson() {
@@ -36,8 +31,8 @@ class PaymentPayload {
   static PaymentPayload fromJson(Map<String, dynamic> json) {
     return PaymentPayload(
       amount: json['amount'],
-      transactionType: json['transaction_type'],
-      installmentType: json['installment_type'],
+      transactionType: TransactionType.values.firstWhere((e) => e.name == json['transaction_type']),
+      installmentType: InstallmentType.values.firstWhere((e) => e.name == json['installment_type']),
       installmentCount: json['installment_count'],
       editableAmount: json['editable_amount'],
       orderId: json['order_id'],
