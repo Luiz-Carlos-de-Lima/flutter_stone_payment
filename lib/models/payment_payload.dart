@@ -35,7 +35,7 @@ class PaymentPayload {
     };
   }
 
-  static PaymentPayload fromJson(Map<String, dynamic> json) {
+  static PaymentPayload fromJson(Map json) {
     return PaymentPayload(
       amount: json['amount'],
       transactionType: TransactionType.values.firstWhere((e) => e.name == json['transaction_type']),

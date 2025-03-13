@@ -13,7 +13,7 @@ class CancelPayload {
     };
   }
 
-  static CancelPayload fromJson(Map<String, dynamic> json) {
+  static CancelPayload fromJson(Map json) {
     return CancelPayload(
       amount: json['amount'],
       atk: json['atk'],

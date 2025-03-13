@@ -13,7 +13,7 @@ class PrintPayload {
     };
   }
 
-  static PrintPayload fromJson(Map<String, dynamic> json) {
+  static PrintPayload fromJson(Map json) {
     return PrintPayload(
       showFeedbackScreen: json['show_feedback_screen'],
       printableContent: json['printable_content'].map<Contentprint>((e) => Contentprint.fromJson(e)).toList(),

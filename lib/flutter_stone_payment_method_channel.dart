@@ -1,5 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_stone_payment/exceptions/cancel_exception.dart';
+import 'package:flutter_stone_payment/exceptions/print_exception.dart';
+import 'package:flutter_stone_payment/exceptions/reprint_exception.dart';
 import 'package:flutter_stone_payment/models/cancel_payload.dart';
 import 'package:flutter_stone_payment/models/cancel_response.dart';
 
@@ -19,9 +21,8 @@ class MethodChannelFlutterStonePayment extends FlutterStonePaymentPlatform {
   Future<PaymentResponse> pay({required PaymentPayload paymentPayload}) async {
     try {
       final response = await methodChannel.invokeMethod<Map>('pay', paymentPayload.toJson());
-
       if (response is Map) {
-        if (response['code'] == StatusDeeplink.SUCCESS.name) {
+        if (response['code'] == StatusDeeplink.SUCCESS.name && response['data'] is Map) {
           final jsonData = response['data'];
           return PaymentResponse.fromJson(jsonData);
         } else {
@@ -35,7 +36,7 @@ class MethodChannelFlutterStonePayment extends FlutterStonePaymentPlatform {
     } on PlatformException catch (e) {
       throw PaymentException(message: e.message ?? 'PlatformException');
     } catch (e) {
-      throw PaymentException(message: e.toString());
+      throw PaymentException(message: "Pay Error: $e");
     }
   }
 
@@ -45,7 +46,7 @@ class MethodChannelFlutterStonePayment extends FlutterStonePaymentPlatform {
       final response = await methodChannel.invokeMethod<Map>('cancel', cancelPayload.toJson());
 
       if (response is Map) {
-        if (response['code'] == StatusDeeplink.SUCCESS.name) {
+        if (response['code'] == StatusDeeplink.SUCCESS.name && response['data'] is Map) {
           final jsonData = response['data'];
           return CancelResponse.fromJson(jsonData);
         } else {
@@ -59,7 +60,7 @@ class MethodChannelFlutterStonePayment extends FlutterStonePaymentPlatform {
     } on PlatformException catch (e) {
       throw CancelException(message: e.message ?? 'PlatformException');
     } catch (e) {
-      throw CancelException(message: e.toString());
+      throw CancelException(message: "Cancel Error: $e");
     }
   }
 
@@ -70,17 +71,17 @@ class MethodChannelFlutterStonePayment extends FlutterStonePaymentPlatform {
 
       if (response is Map) {
         if (response['code'] != StatusDeeplink.SUCCESS.name) {
-          throw CancelException(message: response['message']);
+          throw PrintException(message: response['message']);
         }
       } else {
-        throw CancelException(message: 'invalid response');
+        throw PrintException(message: 'invalid response');
       }
-    } on CancelException catch (e) {
-      throw CancelException(message: e.message);
+    } on PrintException catch (e) {
+      throw PrintException(message: e.message);
     } on PlatformException catch (e) {
-      throw CancelException(message: e.message ?? 'PlatformException');
+      throw PrintException(message: e.message ?? 'PlatformException');
     } catch (e) {
-      throw CancelException(message: e.toString());
+      throw PrintException(message: "Print Error: $e");
     }
   }
 
@@ -91,17 +92,17 @@ class MethodChannelFlutterStonePayment extends FlutterStonePaymentPlatform {
 
       if (response is Map) {
         if (response['code'] != StatusDeeplink.SUCCESS.name) {
-          throw CancelException(message: response['message']);
+          throw ReprintException(message: response['message']);
         }
       } else {
-        throw CancelException(message: 'invalid response');
+        throw ReprintException(message: 'invalid response');
       }
-    } on CancelException catch (e) {
-      throw CancelException(message: e.message);
+    } on ReprintException catch (e) {
+      throw ReprintException(message: e.message);
     } on PlatformException catch (e) {
-      throw CancelException(message: e.message ?? 'PlatformException');
+      throw ReprintException(message: e.message ?? 'PlatformException');
     } catch (e) {
-      throw CancelException(message: e.toString());
+      throw ReprintException(message: "reprint Error: $e");
     }
   }
 }

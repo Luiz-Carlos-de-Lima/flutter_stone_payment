@@ -31,16 +31,16 @@ class CancelResponse {
     };
   }
 
-  static CancelResponse fromJson(Map<String, dynamic> json) {
+  static CancelResponse fromJson(Map json) {
     return CancelResponse(
-      responseCode: json['response_code'],
+      responseCode: json['response_code'] ?? "response_code is Null",
       atk: json['atk'],
-      canceledAmount: json['canceled_amount'],
-      paymentType: json['payment_type'],
-      transactionAmount: json['transaction_amount'],
-      orderId: json['order_id'],
-      authorizationCode: json['authorization_code'],
-      reason: json['reason'],
+      canceledAmount: json['canceled_amount'] ?? "canceled_amount is Null",
+      paymentType: json['payment_type'] ?? "payment_type is Null",
+      transactionAmount: json['transaction_amount'] ?? "transaction_amount is Null",
+      orderId: json['order_id'] ?? "order_id is Null",
+      authorizationCode: json['authorization_code'] ?? "authorization_code is Null",
+      reason: json['reason'] ?? "reason is Null",
     );
   }
 }

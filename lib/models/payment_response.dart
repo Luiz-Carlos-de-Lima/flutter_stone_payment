@@ -34,24 +34,24 @@ class PaymentResponse {
       required this.transactionQualifier,
       required this.amount});
 
-  static PaymentResponse fromJson(Map<String, dynamic> json) {
+  static PaymentResponse fromJson(Map json) {
     return PaymentResponse(
-      cardholderName: json['cardholder_name'],
-      itk: json['itk'],
-      atk: json['atk'],
-      brand: json['brand'],
-      authorizationDateTime: json['authorization_date_time'],
-      orderId: json['order_id'],
-      authorizationCode: json['authorization_code'],
-      installmentCount: json['installment_count'],
-      pan: json['pan'],
-      type: json['type'],
-      entryMode: json['entry_mode'],
-      accountId: json['account_id'],
-      customerWalletProviderId: json['customer_wallet_provider_id'],
-      code: json['code'],
-      transactionQualifier: json['transaction_qualifier'],
-      amount: json['amount'],
+      cardholderName: json['cardholder_name'] ?? "cardholder_name is Null",
+      itk: json['itk'] ?? "itk is Null",
+      atk: json['atk'] ?? "atk is Null",
+      brand: json['brand'] ?? "brand is Null",
+      authorizationDateTime: json['authorization_date_time'] ?? "authorization_date_time is Null",
+      orderId: json['order_id'] ?? "order_id is Null",
+      authorizationCode: json['authorization_code'] ?? "authorization_code is Null",
+      installmentCount: json['installment_count'] ?? "installment_count is Null",
+      pan: json['pan'] ?? "pan is Null",
+      type: json['type'] ?? "type is Null",
+      entryMode: json['entry_mode'] ?? "entry_mode is Null",
+      accountId: json['account_id'] ?? "account_id is Null",
+      customerWalletProviderId: json['customer_wallet_provider_id'] ?? "customer_wallet_provider_id is Null",
+      code: json['code'] ?? "code is Null",
+      transactionQualifier: json['transaction_qualifier'] ?? "transaction_qualifier is Null",
+      amount: json['amount'] ?? "amount is Null",
     );
   }
 

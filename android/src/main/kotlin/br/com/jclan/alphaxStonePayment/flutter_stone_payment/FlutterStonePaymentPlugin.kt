@@ -137,8 +137,8 @@ class FlutterStonePaymentPlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
   }
 
   private fun sendResultData(paymentData: Map<String, Any?>) {
-    if (paymentData["code"] == "SUCCESS") {
-      resultScope?.success(paymentData["data"])
+    if (paymentData["code"] == "SUCCESS" && paymentData["data"] != null) {
+      resultScope?.success(paymentData)
       resultScope = null
     } else {
       val message: String = (paymentData["message"] ?: "result error").toString()

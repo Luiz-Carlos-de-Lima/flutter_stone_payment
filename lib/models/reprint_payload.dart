@@ -15,7 +15,7 @@ class ReprintPayload {
     };
   }
 
-  static ReprintPayload fromJson(Map<String, dynamic> json) {
+  static ReprintPayload fromJson(Map json) {
     return ReprintPayload(
       atk: json['atk'],
       typeCustomer: TypeCustomer.values.firstWhere((e) => e.name == json['type_customer'], orElse: () => TypeCustomer.MERCHANT),
