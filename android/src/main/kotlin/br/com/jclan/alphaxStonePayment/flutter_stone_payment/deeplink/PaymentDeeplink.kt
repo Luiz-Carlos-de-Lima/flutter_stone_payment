@@ -3,6 +3,7 @@ package br.com.jclan.alphaxStonePayment.flutter_stone_payment.deeplink
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 
 class PaymentDeeplink: Deeplink {
@@ -14,7 +15,7 @@ class PaymentDeeplink: Deeplink {
             val installmentType: String? = bundle.getString("installment_type")
             val installmentCount: String? = bundle.getString("installment_count")
             val returnIntentName: String = "return_payment"
-
+            Log.d("startDeeplink Pay", "$bundle")
             var editableAmount: String = "0"
 
             if (amount == null) {
@@ -31,12 +32,14 @@ class PaymentDeeplink: Deeplink {
                 authority("pay")
                 scheme("payment-app")
                 appendQueryParameter("amount", amount)
-                appendQueryParameter("transaction_type", transactionType)
                 appendQueryParameter("order_id", orderId)
                 appendQueryParameter("editable_amount", editableAmount)
                 appendQueryParameter("return_scheme", returnIntentName)
             }
 
+            if (transactionType != null) {
+                uriBuilder.appendQueryParameter("transaction_type", transactionType)
+            }
             if (installmentType != null) {
                 uriBuilder.appendQueryParameter("installment_type", installmentType)
             }
