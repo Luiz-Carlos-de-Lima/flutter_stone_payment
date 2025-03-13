@@ -14,18 +14,27 @@ class Contentprint {
     this.size,
     this.imagePath,
   })  : assert(
-            !(type == PrintType.text && content == null && align == null && size == null), "content and align and size must be null when type is equal text"),
-        assert(!(type == PrintType.image && imagePath == null), "imagePath cannot null when type is equal image"),
-        assert(!(type == PrintType.line && content == null), "content cannot null when type is equal line"),
-        assert(!(type == PrintType.line && align == null && size == null), "align and size must be null when type is equal line");
+          type != PrintType.text || (content is String && align is PrintAlign && size is PrintSize),
+          "content, align, and size must be defined when type is text",
+        ),
+        assert(
+          type != PrintType.image || imagePath is String,
+          "imagePath cannot be null when type is image",
+        ),
+        assert(
+          type != PrintType.line || content is String,
+          "content cannot be null when type is line",
+        );
 
   Map<String, dynamic> toJson() {
+    bool disableAlignAndSize = type != PrintType.text;
+
     return {
       'type': type.name.toString(),
-      'content': content,
-      'align': align?.name.toString(),
-      'size': size?.name.toString(),
-      'imagePath': imagePath,
+      'content': type != PrintType.image ? content : null,
+      'align': disableAlignAndSize ? null : align?.name.toString(),
+      'size': disableAlignAndSize ? null : size?.name.toString(),
+      'imagePath': type == PrintType.image ? imagePath : null,
     };
   }
 

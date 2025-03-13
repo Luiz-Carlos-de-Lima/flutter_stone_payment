@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import br.com.jclan.alphaxStonePayment.flutter_stone_payment.deeplink.CancelDeeplink
 import br.com.jclan.alphaxStonePayment.flutter_stone_payment.deeplink.Deeplink
 import br.com.jclan.alphaxStonePayment.flutter_stone_payment.deeplink.PaymentDeeplink
@@ -28,7 +29,6 @@ class FlutterStonePaymentPlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
   private var binding: ActivityPluginBinding? = null
   private var resultScope: Result? = null
 
-
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "flutter_stone_payment")
     channel.setMethodCallHandler(this)
@@ -41,6 +41,7 @@ class FlutterStonePaymentPlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
   override fun onAttachedToActivity(newBinding: ActivityPluginBinding) {
     binding = newBinding
     binding?.addOnNewIntentListener { intent: Intent ->
+      Log.d("onAttachedToActivity", "$intent")
       val uri: Uri? = intent.data
       if (uri != null && uri.scheme != null) {
         if (uri.scheme.equals("return_payment")) {
@@ -131,15 +132,18 @@ class FlutterStonePaymentPlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
     if (code == "ERROR") {
       val message: String = (bundleStartDeeplink.getString("message") ?: "start deeplink error").toString()
       resultScope?.error(code, message, null)
+      resultScope = null
     }
   }
 
   private fun sendResultData(paymentData: Map<String, Any?>) {
     if (paymentData["code"] == "SUCCESS") {
       resultScope?.success(paymentData["data"])
+      resultScope = null
     } else {
       val message: String = (paymentData["message"] ?: "result error").toString()
       resultScope?.error((paymentData["code"] ?: "ERROR").toString(), message, null)
+      resultScope = null
     }
   }
 

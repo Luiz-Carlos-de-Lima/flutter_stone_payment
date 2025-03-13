@@ -53,28 +53,51 @@ class ReprintDeeplink: Deeplink {
     override fun validateIntent(intent: Intent?): Map<String, Any?> {
         try {
             val returnUri: Uri? = intent?.data
-            Log.d("validateIntentImpressao", "$intent")
             if (returnUri != null) {
-                val success = returnUri.getQueryParameter("success")
-                if (success == "true") {
+                val deeplinkReturn = returnUri.getQueryParameter("DEEPLINK_RETURN")
+                if (deeplinkReturn == "SUCCESS") {
                     return mapOf(
                         "code" to "SUCCESS",
-                        "data" to "true",
+                        "data" to mapOf(
+                            "message" to "Reimpressão efetuada com sucesso"
+                        ),
                     )
-                } else  {
-                    val reason = returnUri.getQueryParameter("reason")
+                } else {
+                    var message: String = "Service Error"
 
-                    var message = returnUri.getQueryParameter("message") ?: "Cancel error"
-
-                    if (reason == "7011") {
-                        message = "Cancellation aborted"
-                    } else if (reason == "7202") {
-                        message = "Cancel failed to find ATK"
+                    when (deeplinkReturn) {
+                        "PRINTER_OUT_OF_PAPER" -> {
+                            message = "Impressora sem papel ou com a tampa de bobina aberta"
+                        }
+                        "PRINTER_INIT_ERROR" -> {
+                            message = "Erro ao inicializar a impressora"
+                        }
+                        "PRINTER_LOW_ENERGY" -> {
+                            message = "Máquina com baixa energia"
+                        }
+                        "PRINTER_BUSY" -> {
+                            message = "Impressora ocupada, ocorre quando já está imprimindo algo"
+                        }
+                        "PRINTER_UNSUPPORTED_FORMAT" -> {
+                            message = "Algum formato enviado não corresponde ao padrão de texto, imagem ou texto customizado"
+                        }
+                        "PRINTER_INVALID_DATA" -> {
+                            message = "Limite máximo do buffer foi ultrapassado"
+                        }
+                        "PRINTER_OVERHEATING" -> {
+                            message = "Superaquecimento da impressora"
+                        }
+                        "PRINTER_PAPER_JAM" -> {
+                            message = "Papel preso na caixa de bobina"
+                        }
+                        "PRINTER_PRINT_ERROR" -> {
+                            message = "Erro genérico da impressora"
+                        }
                     }
 
                     return mapOf(
                         "code" to "ERROR",
-                        "message" to message
+                        "message" to message,
                     )
                 }
             } else {
