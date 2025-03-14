@@ -4,13 +4,17 @@
   <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Stone_pagamentos.png/800px-Stone_pagamentos.png" alt="Stone" height=100 />
 </div>
 
+<div align="center">Plugin não oficial</div>
+
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-donate-yellow?style=for-the-badge&logo=buy-me-a-coffee)](https://buymeacoffee.com/luiz.carlos199)
+
 [![Github Badge](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white&link=https://github.com/Luiz-Carlos-de-Lima)](https://github.com/Luiz-Carlos-de-Lima)
 
-## Plugin não oficial!!!
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/luizcarlos199lcdl/)
 
 ## Sobre
 
-O **Flutter Stone Payment Plugin** é uma solução desenvolvida para integrar as funcionalidades de pagamento da Stone em aplicações Flutter que rodam em terminais POS Android. Este plugin permite realizar transações de pagamento (crédito, débito e voucher, Pix), cancelamentos, impressão de recibos e reimpressão de transações, tudo diretamente no dispositivo POS. Ele utiliza deep links para se comunicar com os aplicativos da Stone, garantindo uma integração segura e eficiente.
+O **Flutter Stone Payment Plugin** é uma solução (Não Oficial) desenvolvida para integrar as funcionalidades de pagamento da Stone em aplicações Flutter que rodam em terminais POS Android. Este plugin permite realizar transações de pagamento (crédito, débito e voucher, Pix), cancelamentos, impressão de recibos e reimpressão de transações, tudo diretamente no dispositivo POS. Ele utiliza deep links para se comunicar com os aplicativos da Stone, garantindo uma integração segura e eficiente.
 
 ---
 

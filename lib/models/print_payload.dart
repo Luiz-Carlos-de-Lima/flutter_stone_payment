@@ -1,4 +1,4 @@
-import 'package:flutter_stone_payment/models/contentPrint.dart';
+import 'package:flutter_stone_payment/models/content_print.dart';
 
 class PrintPayload {
   final bool showFeedbackScreen;

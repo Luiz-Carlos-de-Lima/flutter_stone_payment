@@ -12,7 +12,7 @@ import 'package:flutter_stone_payment/exceptions/print_exception.dart';
 import 'package:flutter_stone_payment/exceptions/reprint_exception.dart';
 import 'package:flutter_stone_payment/flutter_stone_payment.dart';
 import 'package:flutter_stone_payment/models/cancel_payload.dart';
-import 'package:flutter_stone_payment/models/contentPrint.dart';
+import 'package:flutter_stone_payment/models/content_print.dart';
 import 'package:flutter_stone_payment/models/payment_payload.dart';
 import 'package:flutter_stone_payment/models/print_payload.dart';
 import 'package:flutter_stone_payment/models/reprint_payload.dart';
