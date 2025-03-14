@@ -9,13 +9,15 @@
 <a href="https://buymeacoffee.com/luiz.carlos199" target="_blank">
     <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" width="150">
 </a>
+<br />
 
 <a href="https://www.linkedin.com/in/luizcarlos199lcdl/" target="_blank">
-    <img src="https://img.shields.io/badge/-LinkedIn-%230077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn" width="100" height="35" style="margin: 5px 0px 5px 0;" />
+    <img src="https://img.shields.io/badge/-LinkedIn-%230077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn" width="100"  style="margin: 5px 0px 5px 0;" />
 </a>
+<br />
 
-<a href="https://github.com/luizcarlos199lcdl/seu-repositorio" target="_blank">
-    <img src="https://img.shields.io/badge/GitHub-black?style=for-the-badge&logo=github" alt="GitHub Repo" width="100" height="35">
+<a href="https://github.com/Luiz-Carlos-de-Lima" target="_blank">
+    <img src="https://img.shields.io/badge/GitHub-black?style=for-the-badge&logo=github" alt="GitHub Repo" width="100" >
 </a>
 
 ## Sobre
