@@ -1,4 +1,12 @@
-# Flutter Stone Payment Plugin
+<h1 align="center">Flutter Stone Payment</h1>
+
+<div align="center" id="top"> 
+  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Stone_pagamentos.png/800px-Stone_pagamentos.png" alt="Stone" height=100 />
+</div>
+
+[![Github Badge](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white&link=https://github.com/Luiz-Carlos-de-Lima)](https://github.com/Luiz-Carlos-de-Lima)
+
+## Plugin não oficial da Stone
 
 O **Flutter Stone Payment Plugin** é uma solução desenvolvida para integrar as funcionalidades de pagamento da Stone em aplicações Flutter que rodam em terminais POS Android. Este plugin permite realizar transações de pagamento (crédito, débito e voucher, Pix), cancelamentos, impressão de recibos e reimpressão de transações, tudo diretamente no dispositivo POS. Ele utiliza deep links para se comunicar com os aplicativos da Stone, garantindo uma integração segura e eficiente.
 
@@ -531,6 +539,23 @@ Este plugin foi desenvolvido para rodar exclusivamente em terminais POS Android 
 
 Para mais informações, consulte a documentação oficial da Stone ou entre em contato com o suporte técnico da empresa.
 
+## :memo: Autores
+
+Este projeto foi desenvolvido por:
+<a href="https://github.com/Luiz-Carlos-de-Lima" target="_blank">Luiz Carlos de Lima</a>
+</br>
+<div> 
+<a href="https://github.com/Luiz-Carlos-de-Lima">
+  <img src="https://avatars.githubusercontent.com/u/82920625?v=4&size=64" height=90 />
+</a>
+<br>
+<a href="https://github.com/Luiz-Carlos-de-Lima" target="_blank">Luiz Carlos de Lima</a>
+</div>
+
+&#xa0;
+
 ## Licença
 
 Este projeto está sob a licença MIT.
+
+<a href="#top">Voltar para o topo</a>

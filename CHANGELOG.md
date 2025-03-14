@@ -1,3 +1,13 @@
-## 0.0.1
+1.0.0
+* First release of the project.
 
-* TODO: Describe initial release.
+* Features: Payment screen opening.
+
+1.0.2
+* Added functionalities: Cancellation, printing, and reprinting.
+
+* Error handling and success responses.
+
+* Documentation and README updates.
+
+* Bug fixes.
