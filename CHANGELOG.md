@@ -11,3 +11,7 @@
 * Documentation and README updates.
 
 * Bug fixes.
+
+1.0.3
+* Fix cancel method returning non-existent
+* update README

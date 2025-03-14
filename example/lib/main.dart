@@ -315,6 +315,7 @@ class _CancelPageState extends State<_CancelPage> {
   final _amountEC = TextEditingController();
   final _atkEC = TextEditingController();
 
+  String _responseCancel = "";
   bool _editableAmount = false;
 
   @override
@@ -379,6 +380,7 @@ class _CancelPageState extends State<_CancelPage> {
                       ],
                     ),
                   ),
+                  Text(_responseCancel),
                 ],
               ),
             ),
@@ -407,9 +409,11 @@ class _CancelPageState extends State<_CancelPage> {
                   child: ElevatedButton(
                     onPressed: () async {
                       try {
+                        _responseCancel = "SEM RESPOSTA";
                         double? amount = double.tryParse(_amountEC.text);
                         final cancel = CancelPayload(amount: amount, atk: _atkEC.text, editableAmount: _editableAmount);
                         final response = await _flutterStonePaymentPlugin.cancel(cancelPayload: cancel);
+                        _responseCancel = response.toJson().toString();
                         final print = PrintPayload(printableContent: [
                           Contentprint(
                               type: PrintType.text,
@@ -422,12 +426,17 @@ class _CancelPageState extends State<_CancelPage> {
                         ScaffoldMessenger.of(context)
                             .showSnackBar(SnackBar(content: Text("Simulacao Cancelamento e Impressão realizada com sucesso! $cancel")));
                       } on CancelException catch (e) {
+                        _responseCancel = e.message;
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
                       } on PrintException catch (e) {
+                        _responseCancel = e.message;
                         ScaffoldMessenger.of(context)
                             .showSnackBar(SnackBar(content: Text("Simulação de pagamento realizado mas erro na impressão: ${e.message}")));
                       } catch (e) {
+                        _responseCancel = "Erro desconhecido";
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro desconhecido')));
+                      } finally {
+                        setState(() {});
                       }
                     },
                     style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),

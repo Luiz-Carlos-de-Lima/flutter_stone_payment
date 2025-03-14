@@ -25,7 +25,7 @@ class CancelDeeplink: Deeplink {
             uriBuilder.appendQueryParameter("amount", amount)
             uriBuilder.appendQueryParameter("atk", atk)
             uriBuilder.appendQueryParameter("editable_amount", editableAmount.toString())
-            uriBuilder.appendQueryParameter("return_scheme", "return_cancel")
+            uriBuilder.appendQueryParameter("returnscheme", "return_cancel")
 
             val intent = Intent(Intent.ACTION_VIEW)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

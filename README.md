@@ -1,16 +1,22 @@
 <h1 align="center">Flutter Stone Payment</h1>
 
 <div align="center" id="top"> 
-  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Stone_pagamentos.png/800px-Stone_pagamentos.png" alt="Stone" height=100 />
+  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Stone_pagamentos.png/800px-Stone_pagamentos.png" alt="Stone" height=120 />
 </div>
 
-<div align="center">Plugin não oficial</div>
+## Plugin não oficial
 
-[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-donate-yellow?style=for-the-badge&logo=buy-me-a-coffee)](https://buymeacoffee.com/luiz.carlos199)
+<a href="https://buymeacoffee.com/luiz.carlos199" target="_blank">
+    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" width="150">
+</a>
 
-[![Github Badge](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white&link=https://github.com/Luiz-Carlos-de-Lima)](https://github.com/Luiz-Carlos-de-Lima)
+<a href="https://www.linkedin.com/in/luizcarlos199lcdl/" target="_blank">
+    <img src="https://img.shields.io/badge/-LinkedIn-%230077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn" width="100" height="35" style="margin: 5px 0px 5px 0;" />
+</a>
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/luizcarlos199lcdl/)
+<a href="https://github.com/luizcarlos199lcdl/seu-repositorio" target="_blank">
+    <img src="https://img.shields.io/badge/GitHub-black?style=for-the-badge&logo=github" alt="GitHub Repo" width="100" height="35">
+</a>
 
 ## Sobre
 
@@ -552,7 +558,7 @@ Este projeto foi desenvolvido por:
 </br>
 <div> 
 <a href="https://github.com/Luiz-Carlos-de-Lima">
-  <img src="https://avatars.githubusercontent.com/u/82920625?v=4&size=64" height=90 />
+  <img src="https://avatars.githubusercontent.com/u/82920625?s=400&u=a114c12a6e61d2f9b907feb450587a37aae068bb&v=4" height=90 />
 </a>
 <br>
 <a href="https://github.com/Luiz-Carlos-de-Lima" target="_blank">Luiz Carlos de Lima</a>
