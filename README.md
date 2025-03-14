@@ -115,11 +115,11 @@ Define os tipos de transação disponíveis:
 
 Utilizado apenas quando `TransactionTyp.CREDIT`.
 
-* `MERCHANT` - Parcelamento via estabelecimento.
+* `MERCHANT` - Parcelamento sem juros.
 
-* `ISSUER` - Parcelamento via emissor do cartão.
+* `ISSUER` - Parcelamento com juros.
 
-* `NONE` - Sem parcelamento.
+* `NONE` - à vista.
 
 `TypeCustomer`
 
@@ -160,7 +160,7 @@ Utilizado apenas quando `PrintType.text`:
 
 `small` - Pequeno.
 
-## Eceptions
+## Exceptions
 
 ```dart	
 PaymentException() // Exceção lançada quando ocorre algum erro na execução do método pay.
@@ -170,7 +170,7 @@ ReprintException() // Exceção lançada quando ocorre algum erro na execução 
 ```
 ## Método `pay`
 
-No método pay, é necessário criar uma instância do tipo PaymentPayload com os seguintes parâmetros:
+No método `pay`, é necessário criar uma instância do tipo `PaymentPayload` com os seguintes parâmetros:
 
 ```dart	
 final payment = PaymentPayload(
@@ -307,7 +307,7 @@ class PaymentResponse {
 
 ## Método `cancel`
 
-No método cancel, é necessário criar uma instância do tipo CancelPayload com os seguintes parâmetros:
+No método `cancel`, é necessário criar uma instância do tipo `CancelPayload` com os seguintes parâmetros:
 
 ```dart	
 CancelPayload(
@@ -344,6 +344,8 @@ class CancelPayload {
   }
 }
 ```
+
+O único parâmetro obrigatório é o `atk`, que corresponde ao ID do pagamento. Caso o amount não seja informado, ele será solicitado diretamente na aplicação de pagamento da Stone.
 
 ## Resposta do Cancelamento
 
@@ -400,7 +402,7 @@ class CancelResponse {
 
 ## Método `print`
 
-No método print, é necessário criar uma instância do tipo `PrintPayload` com os seguintes parâmetros:
+No método `print`, é necessário criar uma instância do tipo `PrintPayload` com os seguintes parâmetros:
 
 ```dart
 PrintPayload(
@@ -483,7 +485,7 @@ Caso a impressão seja bem-sucedida, a resposta será `void` caso contrário, se
 
 ## Método `reprint`
 
-No método reprint, é necessário criar uma instância do tipo `ReprintPayload` com os seguintes parâmetros:
+No método `reprint`, é necessário criar uma instância do tipo `ReprintPayload` com os seguintes parâmetros:
 
 ```dart
 ReprintPayload(
