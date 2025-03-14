@@ -6,7 +6,9 @@
 
 [![Github Badge](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white&link=https://github.com/Luiz-Carlos-de-Lima)](https://github.com/Luiz-Carlos-de-Lima)
 
-## Plugin não oficial da Stone
+## Plugin não oficial!!!
+
+## Sobre
 
 O **Flutter Stone Payment Plugin** é uma solução desenvolvida para integrar as funcionalidades de pagamento da Stone em aplicações Flutter que rodam em terminais POS Android. Este plugin permite realizar transações de pagamento (crédito, débito e voucher, Pix), cancelamentos, impressão de recibos e reimpressão de transações, tudo diretamente no dispositivo POS. Ele utiliza deep links para se comunicar com os aplicativos da Stone, garantindo uma integração segura e eficiente.
 
