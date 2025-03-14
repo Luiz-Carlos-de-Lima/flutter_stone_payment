@@ -77,7 +77,9 @@ dependencies:
 
 Para utilizar o plugin, basta criar uma instância e chamar os métodos disponíveis:
 
-```dart	
+```dart
+import 'package:flutter_stone_payment/flutter_stone_payment.dart';
+
 final _flutterStonePaymentPlugin = FlutterStonePayment();
 
 // Para realizar um pagamento
