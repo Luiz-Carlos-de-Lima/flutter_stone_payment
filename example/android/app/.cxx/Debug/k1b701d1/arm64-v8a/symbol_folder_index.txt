@@ -1,0 +1,1 @@
+C:\trabalho\alphax\plugins_flutter\flutter_stone_payment\example\build\app\intermediates\cxx\Debug\k1b701d1\obj\arm64-v8a

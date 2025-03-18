@@ -15,3 +15,6 @@
 1.0.3
 * Fix cancel method returning non-existent
 * update README
+
+1.0.4
+* update config
