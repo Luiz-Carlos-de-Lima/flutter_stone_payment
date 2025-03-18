@@ -1,0 +1,2 @@
+C:/trabalho/alphax/plugins_flutter/flutter_stone_payment/example/android/app/.cxx/Debug/k1b701d1/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/trabalho/alphax/plugins_flutter/flutter_stone_payment/example/android/app/.cxx/Debug/k1b701d1/armeabi-v7a/CMakeFiles/rebuild_cache.dir
