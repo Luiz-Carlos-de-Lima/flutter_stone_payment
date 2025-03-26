@@ -1,6 +1,6 @@
 // ignore_for_file: constant_identifier_names
 
-enum InstallmentType {
+enum StoneInstallmentType {
   MERCHANT,
   ISSUER,
   NONE,

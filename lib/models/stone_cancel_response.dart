@@ -1,4 +1,4 @@
-class CancelResponse {
+class StoneCancelResponse {
   final String responseCode;
   final String atk;
   final String canceledAmount;
@@ -8,7 +8,7 @@ class CancelResponse {
   final String authorizationCode;
   final String reason;
 
-  CancelResponse(
+  StoneCancelResponse(
       {required this.responseCode,
       required this.atk,
       required this.canceledAmount,
@@ -31,8 +31,8 @@ class CancelResponse {
     };
   }
 
-  static CancelResponse fromJson(Map json) {
-    return CancelResponse(
+  static StoneCancelResponse fromJson(Map json) {
+    return StoneCancelResponse(
       responseCode: json['response_code'] ?? "response_code is Null",
       atk: json['atk'],
       canceledAmount: json['canceled_amount'] ?? "canceled_amount is Null",

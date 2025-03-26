@@ -1,108 +1,107 @@
 import 'package:flutter/services.dart';
-import 'package:flutter_stone_payment/exceptions/cancel_exception.dart';
-import 'package:flutter_stone_payment/exceptions/print_exception.dart';
-import 'package:flutter_stone_payment/exceptions/reprint_exception.dart';
-import 'package:flutter_stone_payment/models/cancel_payload.dart';
-import 'package:flutter_stone_payment/models/cancel_response.dart';
-
-import 'package:flutter_stone_payment/models/payment_payload.dart';
-import 'package:flutter_stone_payment/models/payment_response.dart';
-import 'package:flutter_stone_payment/models/print_payload.dart';
-import 'package:flutter_stone_payment/models/reprint_payload.dart';
-
-import 'constants/status_deeplink.dart';
-import 'exceptions/payment_exception.dart';
 import 'flutter_stone_payment_platform_interface.dart';
+
+import 'exceptions/stone_cancel_exception.dart';
+import 'exceptions/stone_print_exception.dart';
+import 'exceptions/stone_reprint_exception.dart';
+import 'exceptions/stone_payment_exception.dart';
+import 'models/stone_cancel_payload.dart';
+import 'models/stone_cancel_response.dart';
+import 'models/stone_payment_payload.dart';
+import 'models/stone_payment_response.dart';
+import 'models/stone_print_payload.dart';
+import 'models/stone_reprint_payload.dart';
+import 'constants/stone_status_deeplink.dart';
 
 class MethodChannelFlutterStonePayment extends FlutterStonePaymentPlatform {
   final methodChannel = const MethodChannel('flutter_stone_payment');
 
   @override
-  Future<PaymentResponse> pay({required PaymentPayload paymentPayload}) async {
+  Future<StonePaymentResponse> pay({required StonePaymentPayload paymentPayload}) async {
     try {
       final response = await methodChannel.invokeMethod<Map>('pay', paymentPayload.toJson());
       if (response is Map) {
-        if (response['code'] == StatusDeeplink.SUCCESS.name && response['data'] is Map) {
+        if (response['code'] == StoneStatusDeeplink.SUCCESS.name && response['data'] is Map) {
           final jsonData = response['data'];
-          return PaymentResponse.fromJson(jsonData);
+          return StonePaymentResponse.fromJson(jsonData);
         } else {
-          throw PaymentException(message: response['message']);
+          throw StonePaymentException(message: response['message']);
         }
       } else {
-        throw PaymentException(message: 'invalid response');
+        throw StonePaymentException(message: 'invalid response');
       }
-    } on PaymentException catch (e) {
-      throw PaymentException(message: e.message);
+    } on StonePaymentException catch (e) {
+      throw StonePaymentException(message: e.message);
     } on PlatformException catch (e) {
-      throw PaymentException(message: e.message ?? 'PlatformException');
+      throw StonePaymentException(message: e.message ?? 'PlatformException');
     } catch (e) {
-      throw PaymentException(message: "Pay Error: $e");
+      throw StonePaymentException(message: "Pay Error: $e");
     }
   }
 
   @override
-  Future<CancelResponse> cancel({required CancelPayload cancelPayload}) async {
+  Future<StoneCancelResponse> cancel({required StoneCancelPayload cancelPayload}) async {
     try {
       final response = await methodChannel.invokeMethod<Map>('cancel', cancelPayload.toJson());
 
       if (response is Map) {
-        if (response['code'] == StatusDeeplink.SUCCESS.name && response['data'] is Map) {
+        if (response['code'] == StoneStatusDeeplink.SUCCESS.name && response['data'] is Map) {
           final jsonData = response['data'];
-          return CancelResponse.fromJson(jsonData);
+          return StoneCancelResponse.fromJson(jsonData);
         } else {
-          throw CancelException(message: response['message']);
+          throw StoneCancelException(message: response['message']);
         }
       } else {
-        throw CancelException(message: 'invalid response');
+        throw StoneCancelException(message: 'invalid response');
       }
-    } on CancelException catch (e) {
-      throw CancelException(message: e.message);
+    } on StoneCancelException catch (e) {
+      throw StoneCancelException(message: e.message);
     } on PlatformException catch (e) {
-      throw CancelException(message: e.message ?? 'PlatformException');
+      throw StoneCancelException(message: e.message ?? 'PlatformException');
     } catch (e) {
-      throw CancelException(message: "Cancel Error: $e");
+      throw StoneCancelException(message: "Cancel Error: $e");
     }
   }
 
   @override
-  Future<void> print({required PrintPayload printPayload}) async {
+  Future<void> print({required StonePrintPayload printPayload}) async {
     try {
       final response = await methodChannel.invokeMethod<Map>('print', printPayload.toJson());
 
       if (response is Map) {
-        if (response['code'] != StatusDeeplink.SUCCESS.name) {
-          throw PrintException(message: response['message']);
+        if (response['code'] != StoneStatusDeeplink.SUCCESS.name) {
+          throw StonePrintException(message: response['message']);
         }
       } else {
-        throw PrintException(message: 'invalid response');
+        throw StonePrintException(message: 'invalid response');
       }
-    } on PrintException catch (e) {
-      throw PrintException(message: e.message);
+    } on StonePrintException catch (e) {
+      throw StonePrintException(message: e.message);
     } on PlatformException catch (e) {
-      throw PrintException(message: e.message ?? 'PlatformException');
+      throw StonePrintException(message: e.message ?? 'PlatformException');
     } catch (e) {
-      throw PrintException(message: "Print Error: $e");
+      throw StonePrintException(message: "Print Error: $e");
     }
   }
 
   @override
-  Future<void> reprint({required ReprintPayload reprintPayload}) async {
+  Future<void> reprint({required StoneReprintPayload reprintPayload}) async {
     try {
       final response = await methodChannel.invokeMethod<Map>('reprint', reprintPayload.toJson());
 
       if (response is Map) {
-        if (response['code'] != StatusDeeplink.SUCCESS.name) {
-          throw ReprintException(message: response['message']);
+        if (response['code'] != StoneStatusDeeplink.SUCCESS.name) {
+          throw StoneReprintException(message: response['message']);
         }
       } else {
-        throw ReprintException(message: 'invalid response');
+        throw StoneReprintException(message: 'invalid response');
       }
-    } on ReprintException catch (e) {
-      throw ReprintException(message: e.message);
+    } on StoneReprintException catch (e) {
+      throw StoneReprintException(message: e.message);
     } on PlatformException catch (e) {
-      throw ReprintException(message: e.message ?? 'PlatformException');
+      throw StoneReprintException(message: e.message ?? 'PlatformException');
     } catch (e) {
-      throw ReprintException(message: "reprint Error: $e");
+      throw StoneReprintException(message: "reprint Error: $e");
     }
   }
 }

@@ -1,12 +1,12 @@
-import 'package:flutter_stone_payment/models/cancel_payload.dart';
-import 'package:flutter_stone_payment/models/cancel_response.dart';
-import 'package:flutter_stone_payment/models/reprint_payload.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
-
 import 'flutter_stone_payment_method_channel.dart';
-import 'models/payment_payload.dart';
-import 'models/payment_response.dart';
-import 'models/print_payload.dart';
+
+import 'models/stone_cancel_payload.dart';
+import 'models/stone_cancel_response.dart';
+import 'models/stone_reprint_payload.dart';
+import 'models/stone_payment_payload.dart';
+import 'models/stone_payment_response.dart';
+import 'models/stone_print_payload.dart';
 
 abstract class FlutterStonePaymentPlatform extends PlatformInterface {
   /// Constructs a FlutterStonePaymentPlatform.
@@ -29,19 +29,19 @@ abstract class FlutterStonePaymentPlatform extends PlatformInterface {
     _instance = instance;
   }
 
-  Future<PaymentResponse> pay({required PaymentPayload paymentPayload}) {
+  Future<StonePaymentResponse> pay({required StonePaymentPayload paymentPayload}) {
     throw UnimplementedError('pay() has not been implemented.');
   }
 
-  Future<CancelResponse> cancel({required CancelPayload cancelPayload}) {
+  Future<StoneCancelResponse> cancel({required StoneCancelPayload cancelPayload}) {
     throw UnimplementedError('cancel() has not been implemented.');
   }
 
-  Future<void> print({required PrintPayload printPayload}) {
+  Future<void> print({required StonePrintPayload printPayload}) {
     throw UnimplementedError('print() has not been implemented.');
   }
 
-  Future<void> reprint({required ReprintPayload reprintPayload}) {
+  Future<void> reprint({required StoneReprintPayload reprintPayload}) {
     throw UnimplementedError('reprint() has not been implemented.');
   }
 }

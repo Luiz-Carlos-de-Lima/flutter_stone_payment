@@ -1,5 +1,5 @@
 1.0.0
-* First release of the project.
+* First release of the plugin.
 
 * Features: Payment screen opening.
 
@@ -18,3 +18,6 @@
 
 1.0.4
 * update config
+
+1.1.0
+* rename files and class

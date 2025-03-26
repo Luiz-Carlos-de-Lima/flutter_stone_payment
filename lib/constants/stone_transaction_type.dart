@@ -1,6 +1,6 @@
 // ignore_for_file: constant_identifier_names
 
-enum TransactionType {
+enum StoneTransactionType {
   DEBIT,
   CREDIT,
   VOUCHER,
