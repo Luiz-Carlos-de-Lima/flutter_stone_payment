@@ -1,3 +1,4 @@
+import 'package:flutter_stone_payment/models/stone_device_info.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'flutter_stone_payment_method_channel.dart';
 
@@ -43,5 +44,9 @@ abstract class FlutterStonePaymentPlatform extends PlatformInterface {
 
   Future<void> reprint({required StoneReprintPayload reprintPayload}) {
     throw UnimplementedError('reprint() has not been implemented.');
+  }
+
+  Future<StoneDeviceInfo> deviceInfo() {
+    throw UnimplementedError('deviceInfo() has not been implemented.');
   }
 }

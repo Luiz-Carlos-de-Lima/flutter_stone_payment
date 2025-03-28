@@ -10,6 +10,7 @@ import br.com.jclan.alphaxStonePayment.flutter_stone_payment.deeplink.Deeplink
 import br.com.jclan.alphaxStonePayment.flutter_stone_payment.deeplink.PaymentDeeplink
 import br.com.jclan.alphaxStonePayment.flutter_stone_payment.deeplink.PrintDeeplink
 import br.com.jclan.alphaxStonePayment.flutter_stone_payment.deeplink.ReprintDeeplink
+import br.com.jclan.alphaxStonePayment.flutter_stone_payment.services.DeviceInfo
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -117,6 +118,13 @@ class FlutterStonePaymentPlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
           putString("type_customer", call.argument<String>("type_customer"))
         }
         starDeeplink(reprintDeeplink, bundle)
+      }
+      "getSerialNumberAndDeviceModel" -> {
+        val deviceInfo = DeviceInfo().getSerialNumberAndDeviceModel()
+        resultScope?.success(mapOf(
+          "code" to "SUCCESS",
+          "data" to deviceInfo
+        ))
       }
       else ->  {
         resultScope?.error("ERROR", "Value of ", null)

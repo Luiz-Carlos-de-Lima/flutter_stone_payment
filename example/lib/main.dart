@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_stone_payment/constants/stone_info_exception.dart';
 
 import 'package:flutter_stone_payment/constants/stone_installment_type.dart';
 import 'package:flutter_stone_payment/constants/stone_print_content_types.dart';
@@ -77,6 +78,24 @@ class PaymentApp extends StatelessWidget {
                   },
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.orange, foregroundColor: Colors.white),
                   child: Text('Reimprimir'),
+                ),
+              ),
+              SizedBox(
+                width: 300,
+                height: 45,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    try {
+                      final info = await FlutterStonePayment().deviceInfo();
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Device info: ${info.toJson()}")));
+                    } on StoneInfoException catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro desconhecido')));
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.pink, foregroundColor: Colors.white),
+                  child: Text('Device Info'),
                 ),
               ),
             ],

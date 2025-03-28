@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:flutter_stone_payment/models/stone_device_info.dart';
 import 'flutter_stone_payment_platform_interface.dart';
 
 import 'exceptions/stone_cancel_exception.dart';
@@ -102,6 +103,29 @@ class MethodChannelFlutterStonePayment extends FlutterStonePaymentPlatform {
       throw StoneReprintException(message: e.message ?? 'PlatformException');
     } catch (e) {
       throw StoneReprintException(message: "reprint Error: $e");
+    }
+  }
+
+  @override
+  Future<StoneDeviceInfo> deviceInfo() async {
+    try {
+      final response = await methodChannel.invokeMethod<Map>('getSerialNumberAndDeviceModel');
+      if (response is Map) {
+        if (response['code'] == StoneStatusDeeplink.SUCCESS.name && response['data'] is Map) {
+          final jsonData = response['data'];
+          return StoneDeviceInfo.fromJson(json: jsonData);
+        } else {
+          throw StoneReprintException(message: response['message']);
+        }
+      } else {
+        throw StoneReprintException(message: 'invalid response');
+      }
+    } on StoneReprintException catch (e) {
+      throw StoneReprintException(message: e.message);
+    } on PlatformException catch (e) {
+      throw StoneReprintException(message: e.message ?? 'PlatformException');
+    } catch (e) {
+      throw StoneReprintException(message: "deviceInfo payment Error: $e");
     }
   }
 }

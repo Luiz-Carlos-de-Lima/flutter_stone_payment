@@ -1,6 +1,6 @@
 name: flutter_stone_payment
 description: "Plugin flutter que faz a integração com o SDK da stone, para pagamento com maquininhas POS"
-version: 1.1.0
+version: 1.1.1
 homepage: https://github.com/Luiz-Carlos-de-Lima/flutter_stone_payment
 
 environment:
