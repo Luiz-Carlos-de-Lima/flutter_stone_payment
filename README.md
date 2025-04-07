@@ -22,7 +22,7 @@
 
 ## Sobre
 
-O **Flutter Stone Payment** Plugin é uma solução não oficial desenvolvida para integrar as funcionalidades de pagamento da Stone em aplicações Flutter executadas em terminais POS Android. Com este plugin, é possível processar transações de pagamento via `crédito`, `débito`, `voucher` e `Pix`, além de realizar `cancelamentos`, `impressão de recibos` e `reimpressão de transações` — tudo diretamente no dispositivo POS. A comunicação com os aplicativos da Stone é feita por meio de deep links, garantindo uma integração segura, eficiente e fluída.
+O **Flutter Stone Payment** Plugin é uma solução não oficial desenvolvida para integrar as funcionalidades de pagamento da Stone em aplicações Flutter executadas em terminais POS Android. Com este plugin, é possível processar transações de pagamento via `crédito`, `débito`, `voucher` e `Pix`, além de realizar `cancelamentos`, `impressão de recibos` e `reimpressão de transações` — tudo diretamente no dispositivo POS. A comunicação com os aplicativos da Stone é feita por meio de deeplinks, garantindo uma integração segura, eficiente e fluída.
 
 ---
 
@@ -119,7 +119,7 @@ final response = await _flutterStonePaymentPlugin.reprint(reprintPayload: reprin
 
 ## Enums Disponíveis
 
-`TransactionType`
+`StoneTransactionType`
 
 Define os tipos de transação disponíveis:
 
@@ -133,7 +133,7 @@ Define os tipos de transação disponíveis:
 
 * `PIX` - Transação via PIX.
 
-`InstallmentType`
+`StoneInstallmentType`
 
 Utilizado apenas quando `TransactionTyp.CREDIT`.
 
@@ -143,7 +143,7 @@ Utilizado apenas quando `TransactionTyp.CREDIT`.
 
 * `NONE` - à vista.
 
-`TypeCustomer`
+`StoneTypeCustomer`
 
 Usado no reprint para determinar o tipo de guia impressa:
 
@@ -151,7 +151,7 @@ Usado no reprint para determinar o tipo de guia impressa:
 
 * `MERCHANT` - Guia da loja.
 
-`PrintType`
+`StonePrintType`
 
 Define os tipos de impressão disponíveis:
 
@@ -161,9 +161,9 @@ Define os tipos de impressão disponíveis:
 
 * `image` - Impressão de imagem.
 
-`PrintAlign`
+`StonePrintAlign`
 
-Define o alinhamento do conteúdo impresso na instância de ContentPrint, Utilizado apenas quando `PrintType.text`:
+Define o alinhamento do conteúdo impresso na instância de ContentPrint, Utilizado apenas quando `StonePrintType.text`:
 
 * `center` - Centralizado.
 
@@ -171,10 +171,10 @@ Define o alinhamento do conteúdo impresso na instância de ContentPrint, Utiliz
 
 * `left` - Alinhado à esquerda.
 
-`PrintSize`
+`StonePrintSize`
 
 Define o tamanho do texto impresso na instância de ContentPrint:
-Utilizado apenas quando `PrintType.text`:
+Utilizado apenas quando `StonePrintType.text`:
 
 `big` - Grande.
 
@@ -185,38 +185,38 @@ Utilizado apenas quando `PrintType.text`:
 ## Exceptions
 
 ```dart	
-PaymentException() // Exceção lançada quando ocorre algum erro na execução do método pay.
-CancelException() // Exceção lançada quando ocorre algum erro na execução do método cancel.
-PrintException() // Exceção lançada quando ocorre algum erro na execução do método print.
-ReprintException() // Exceção lançada quando ocorre algum erro na execução do método reprint.
+StonePaymentException() // Exceção lançada quando ocorre algum erro na execução do método pay.
+StoneCancelException() // Exceção lançada quando ocorre algum erro na execução do método cancel.
+StonePrintException() // Exceção lançada quando ocorre algum erro na execução do método print.
+StoneReprintException() // Exceção lançada quando ocorre algum erro na execução do método reprint.
 ```
 ## Método `pay`
 
-No método `pay`, é necessário criar uma instância do tipo `PaymentPayload` com os seguintes parâmetros:
+No método `pay`, é necessário criar uma instância do tipo `StonePaymentPayload` com os seguintes parâmetros:
 
 ```dart	
-final payment = PaymentPayload(
+final payment = StonePaymentPayload(
   amount: 100.00,
-  transactionType: TransactionType.CREDIT,
+  transactionType: StoneTransactionType.CREDIT,
   orderId: '123456', //Exemplo de ID de pedido
   installmentCount: 4,
-  installmentType: InstallmentType.ISSUER,
+  installmentType: StoneInstallmentType.ISSUER,
   editableAmount: false
 );
 ```
 
-A estrutura de `PaymentPayload` é a seguinte:
+A estrutura de `StonePaymentPayload` é a seguinte:
 
 ```dart
-class PaymentPayload {
+class StonePaymentPayload {
   final double? amount;
-  final TransactionType? transactionType;
-  final InstallmentType? installmentType; //Apenas para TransactionType.CREDIT
-  final int? installmentCount; //Apenas para TransactionType.CREDIT
+  final StoneTransactionType? transactionType;
+  final StoneInstallmentType? installmentType; //Apenas para StoneTransactionType.CREDIT
+  final int? installmentCount; //Apenas para StoneTransactionType.CREDIT
   final bool editableAmount;
   final String orderId;
 
-  PaymentPayload({
+  StonePaymentPayload({
     this.amount,
     this.transactionType,
     this.installmentType,
@@ -224,14 +224,14 @@ class PaymentPayload {
     this.editableAmount = false,
     required this.orderId,
   }) : assert(
-          transactionType == TransactionType.CREDIT || (installmentType == null && installmentCount == null),
+          transactionType == StoneTransactionType.CREDIT || (installmentType == null && installmentCount == null),
           'installmentType and installmentCount must be null for DEBIT, INSTANT_PAYMENT, VOUCHER, and PIX transactionType.',
         ),
         assert(
-          transactionType != TransactionType.CREDIT ||
+          transactionType != StoneTransactionType.CREDIT ||
               (installmentType == null && installmentCount == null) || 
-              (installmentType == InstallmentType.NONE && (installmentCount == null || installmentCount == 1)) || 
-              ((installmentType == InstallmentType.MERCHANT || installmentType == InstallmentType.ISSUER) && (installmentCount == null || installmentCount > 1)),
+              (installmentType == StoneInstallmentType.NONE && (installmentCount == null || installmentCount == 1)) || 
+              ((installmentType == StoneInstallmentType.MERCHANT || installmentType == StoneInstallmentType.ISSUER) && (installmentCount == null || installmentCount > 1)),
           'For CREDIT transactions: installmentType can be null, but if it is NONE, installmentCount must be null or 1; '
           'if it is MERCHANT or ISSUER, installmentCount must be null or greater than 1.',
         );
@@ -240,18 +240,18 @@ class PaymentPayload {
     return {
       'amount': amount is double ? (amount! * 100).toInt().toString() : '0',
       'transaction_type': transactionType?.name,
-      'installment_type': transactionType == TransactionType.CREDIT ? installmentType?.name : null,
-      'installment_count': transactionType == TransactionType.CREDIT && installmentType != null ? installmentCount?.toString() : null,
+      'installment_type': transactionType == StoneTransactionType.CREDIT ? installmentType?.name : null,
+      'installment_count': transactionType == StoneTransactionType.CREDIT && installmentType != null ? installmentCount?.toString() : null,
       'editable_amount': amount is double ? editableAmount : true,
       'order_id': orderId,
     };
   }
 
-  static PaymentPayload fromJson(Map json) {
-    return PaymentPayload(
+  static StonePaymentPayload fromJson(Map json) {
+    return StonePaymentPayload(
       amount: json['amount'],
-      transactionType: TransactionType.values.firstWhere((e) => e.name == json['transaction_type']),
-      installmentType: json['installment_type'] != null ? InstallmentType.values.firstWhere((e) => e.name == json['installment_type']) : null,
+      transactionType: StoneTransactionType.values.firstWhere((e) => e.name == json['transaction_type']),
+      installmentType: json['installment_type'] != null ? StoneInstallmentType.values.firstWhere((e) => e.name == json['installment_type']) : null,
       installmentCount: json['installment_count'],
       editableAmount: json['editable_amount'],
       orderId: json['order_id'],
@@ -264,10 +264,10 @@ O único parâmetro obrigatório é o `orderId`, que corresponde ao ID do pedido
 
 ## Resposta do Pagamento
 
-Caso a transação seja bem-sucedida, o retorno será uma instância do tipo `PaymentResponse` com a seguinte estrutura, Caso contrário, vai ser lançado uma exceção do tipo `PaymentException`.
+Caso a transação seja bem-sucedida, o retorno será uma instância do tipo `StonePaymentResponse` com a seguinte estrutura, Caso contrário, vai ser lançado uma exceção do tipo `StonePaymentException`.
 
 ```dart
-class PaymentResponse {
+class StonePaymentResponse {
   final String cardholderName;
   final String itk;
   final String atk;
@@ -285,7 +285,7 @@ class PaymentResponse {
   final String transactionQualifier;
   final String amount;
 
-  PaymentResponse({
+  StonePaymentResponse({
     required this.cardholderName,
     required this.itk,
     required this.atk,
@@ -304,8 +304,8 @@ class PaymentResponse {
     required this.amount,
   });
 
-  static PaymentResponse fromJson(Map json) {
-    return PaymentResponse(
+  static StonePaymentResponse fromJson(Map json) {
+    return StonePaymentResponse(
       cardholderName: json['cardholder_name'] ?? "cardholder_name is Null",
       itk: json['itk'] ?? "itk is Null",
       atk: json['atk'] ?? "atk is Null",
@@ -329,25 +329,25 @@ class PaymentResponse {
 
 ## Método `cancel`
 
-No método `cancel`, é necessário criar uma instância do tipo `CancelPayload` com os seguintes parâmetros:
+No método `cancel`, é necessário criar uma instância do tipo `StoneCancelPayload` com os seguintes parâmetros:
 
 ```dart	
-CancelPayload(
+StoneCancelPayload(
   amount: 30.00, 
   atk: '17251082184988', //ID do pagamento
   editableAmount: false,
 );
 ```
 
-A estrutura de `CancelPayload` é a seguinte:
+A estrutura de `StoneCancelPayload` é a seguinte:
 
 ```dart
-class CancelPayload {
+class StoneCancelPayload {
   final double? amount;
   final String atk;
   final bool editableAmount;
 
-  CancelPayload({required this.amount, required this.atk, this.editableAmount = false});
+  StoneCancelPayload({required this.amount, required this.atk, this.editableAmount = false});
 
   Map<String, dynamic> toJson() {
     return {
@@ -357,8 +357,8 @@ class CancelPayload {
     };
   }
 
-  static CancelPayload fromJson(Map json) {
-    return CancelPayload(
+  static StoneCancelPayload fromJson(Map json) {
+    return StoneCancelPayload(
       amount: json['amount'],
       atk: json['atk'],
       editableAmount: json['editable_amount'],
@@ -371,10 +371,10 @@ O único parâmetro obrigatório é o `atk`, que corresponde ao ID do pagamento.
 
 ## Resposta do Cancelamento
 
-Se a transação de cancelamento for bem-sucedida, o retorno será uma instância do tipo `CancelResponse` com a seguinte estrutura, caso contrario, será lançado uma exceção do tipo `CancelException`.
+Se a transação de cancelamento for bem-sucedida, o retorno será uma instância do tipo `StoneCancelResponse` com a seguinte estrutura, caso contrario, será lançado uma exceção do tipo `StoneCancelException`.
 
 ```dart	
-class CancelResponse {
+class StoneCancelResponse {
   final String responseCode;
   final String atk;
   final String canceledAmount;
@@ -384,7 +384,7 @@ class CancelResponse {
   final String authorizationCode;
   final String reason;
 
-  CancelResponse(
+  StoneCancelResponse(
       {required this.responseCode,
       required this.atk,
       required this.canceledAmount,
@@ -407,8 +407,8 @@ class CancelResponse {
     };
   }
 
-  static CancelResponse fromJson(Map json) {
-    return CancelResponse(
+  static StoneCancelResponse fromJson(Map json) {
+    return StoneCancelResponse(
       responseCode: json['response_code'] ?? "response_code is Null",
       atk: json['atk'],
       canceledAmount: json['canceled_amount'] ?? "canceled_amount is Null",
@@ -424,23 +424,23 @@ class CancelResponse {
 
 ## Método `print`
 
-No método `print`, é necessário criar uma instância do tipo `PrintPayload` com os seguintes parâmetros:
+No método `print`, é necessário criar uma instância do tipo `StonePrintPayload` com os seguintes parâmetros:
 
 ```dart
-PrintPayload(
+StonePrintPayload(
   printableContent: [
-    Contentprint(
-      type: PrintType.line,
+    StoneContentprint(
+      type: StonePrintType.line,
       content: 'Texto a ser impresso'
     ),
-     Contentprint(
-      type: PrintType.text,
-      align: PrintAlign.center, //Obrigatório quando PrintType.text
-      size: PrintSize.big, ////Obrigatório quando PrintType.text
+     StoneContentprint(
+      type: StonePrintType.text,
+      align: StonePrintAlign.center, //Obrigatório quando StonePrintType.text
+      size: StonePrintSize.big, ////Obrigatório quando StonePrintType.text
       content: 'Texto a ser impresso'
     ),
-     Contentprint(
-      type: PrintType.image, 
+     StoneContentprint(
+      type: StonePrintType.image, 
       imagePath: 'iVBORw0KGgoAAAANSUhEUgAAAHcAAAAuCAAAAAA309lpAAACMklEQVRYw91YQXLDIAyUMj027Us606f6RL7lJP0Ise/bg7ERSLLdZkxnyiVGIK0AoRVh0J+0l2ZITCAmSus8tYNNv9wUl8Xn2A6XZec8tsK9lN0zEaFBCxMc0M3IoHawBAAxffLx9/frY1kkEV0/iYjC8bjjmSRuCrHjcXMoS9zD4/nqePNf10v2whrkDRjLR4t8BWPXbdyRmccDgBMZUXDiiv2DeSK4sKwWrfgIda8V/6L6blZvLMARTescAohCD7xlcsItjYXEXHn2LIESzO3mDARPYTJXwiQ/VgWFobsYGKRdRy5x6/1QuAPpKdq89MiTS1x9EBXuYJyVZd46p6ndXVwAqfwJpd4C20uLk/LsUIilQ5Q11A4tuIU8Ti4bi8oz6lNX8iD8rNUdXDm3iMs81le4pUOLOJrGatzBx1VqVRSU8qAdNRc855GwHxcFblQbYTvqx3M0ZxZnZeBq+UoayI0h3y7QPMhOyQA9JMkO9aMIqs6Rmrw73T6ey9anvDX5kbinvT2PW7yYzj8ogrcYqBOJjNxc21d5EjmH0e/iaqUV9dXj3YgYtkvCjbjaqs5O+85MxVvwTcZdhR5YuFbckCSfNkHUolTcE9Cq9iQfXtV62bo9nUBIm8AXedPidimVFIjZCdYlTw4W8RtsatKC7Bt7D4t5tMle9qPD+y4uyL81FS/UnnVu3eMzhuj3G7CqzkHF77ISsaoraSsqVnRhq3rSZ+F5Ur//b5zOOVoAwDc6szxdC+PYAAAAAABJRU5ErkJggg=='
     )
   ], 
@@ -448,53 +448,53 @@ PrintPayload(
 );
 ```
 
-A propriedade `printableContent` é uma lista de objetos `Contentprint` que representam o conteúdo a ser impresso. O objeto `Contentprint` possui as seguintes propriedades:
+A propriedade `printableContent` é uma lista de objetos `StoneContentprint` que representam o conteúdo a ser impresso. O objeto `StoneContentprint` possui as seguintes propriedades:
 
 ```dart
-class Contentprint {
-  final PrintType type;
-  final String? content; //Obrigatório quando PrintType.text ou PrintType.line
-  final PrintAlign? align; //Obrigatório quando PrintType.text
-  final PrintSize? size; //Obrigatório quando PrintType.text
-  final String? imagePath; //Obrigatório quando PrintType.image
+class StoneContentprint {
+  final StonePrintType type;
+  final String? content; //Obrigatório quando StonePrintType.text ou StonePrintType.line
+  final StonePrintAlign? align; //Obrigatório quando StonePrintType.text
+  final StonePrintSize? size; //Obrigatório quando StonePrintType.text
+  final String? imagePath; //Obrigatório quando StonePrintType.image
 
-  Contentprint({
+  StoneContentprint({
     required this.type,
     this.content,
     this.align,
     this.size,
     this.imagePath,
   })  : assert(
-          type != PrintType.text || (content is String && align is PrintAlign && size is PrintSize),
+          type != StonePrintType.text || (content is String && align is StonePrintAlign && size is StonePrintSize),
           "content, align, and size must be defined when type is text",
         ),
         assert(
-          type != PrintType.image || imagePath is String,
+          type != StonePrintType.image || imagePath is String,
           "imagePath cannot be null when type is image",
         ),
         assert(
-          type != PrintType.line || content is String,
+          type != StonePrintType.line || content is String,
           "content cannot be null when type is line",
         );
 
   Map<String, dynamic> toJson() {
-    bool disableAlignAndSize = type != PrintType.text;
+    bool disableAlignAndSize = type != StonePrintType.text;
 
     return {
       'type': type.name.toString(),
-      'content': type != PrintType.image ? content : null,
+      'content': type != StonePrintType.image ? content : null,
       'align': disableAlignAndSize ? null : align?.name.toString(),
       'size': disableAlignAndSize ? null : size?.name.toString(),
-      'imagePath': type == PrintType.image ? imagePath : null,
+      'imagePath': type == StonePrintType.image ? imagePath : null,
     };
   }
 
-  static Contentprint fromJson(Map<String, dynamic> json) {
-    return Contentprint(
-      type: PrintType.values.firstWhere((e) => e.name == json['type']),
+  static StoneContentprint fromJson(Map<String, dynamic> json) {
+    return StoneContentprint(
+      type: StonePrintType.values.firstWhere((e) => e.name == json['type']),
       content: json['content'],
-      align: json['align'] != null ? PrintAlign.values.firstWhere((e) => e.name == json['align']) : null,
-      size: json['size'] != null ? PrintSize.values.firstWhere((e) => e.name == json['size']) : null,
+      align: json['align'] != null ? StonePrintAlign.values.firstWhere((e) => e.name == json['align']) : null,
+      size: json['size'] != null ? StonePrintSize.values.firstWhere((e) => e.name == json['size']) : null,
       imagePath: json['imagePath'],
     );
   }
@@ -503,28 +503,28 @@ class Contentprint {
 
 ## Resposta de impressão
 
-Caso a impressão seja bem-sucedida, a resposta será `void` caso contrário, será lançada uma exceção `PrintException` com a mensagem de erro.
+Caso a impressão seja bem-sucedida, a resposta será `void` caso contrário, será lançada uma exceção `StonePrintException` com a mensagem de erro.
 
 ## Método `reprint`
 
-No método `reprint`, é necessário criar uma instância do tipo `ReprintPayload` com os seguintes parâmetros:
+No método `reprint`, é necessário criar uma instância do tipo `StoneReprintPayload` com os seguintes parâmetros:
 
 ```dart
-ReprintPayload(
+StoneReprintPayload(
   atk: '17251082184988', //identificador do pagamento
-  typeCustomer: TypeCustomer.CLIENT, //tipo de guia (CLIENT ou MERCHANT)
+  typeCustomer: StoneTypeCustomer.CLIENT, //tipo de guia (CLIENT ou MERCHANT)
   showFeedbackScreen: false, //se true, exibe a tela de feedback após a impressão
 );
 ```
-A estrutura de `ReprintPayload` é a seguinte:
+A estrutura de `StoneReprintPayload` é a seguinte:
 
 ```dart
-class ReprintPayload {
+class StoneReprintPayload {
   final String atk;
-  final TypeCustomer typeCustomer;
+  final StoneTypeCustomer typeCustomer;
   final bool showFeedbackScreen;
 
-  ReprintPayload({required this.atk, required this.typeCustomer, required this.showFeedbackScreen});
+  StoneReprintPayload({required this.atk, required this.typeCustomer, required this.showFeedbackScreen});
 
   Map<String, dynamic> toJson() {
     return {
@@ -534,10 +534,10 @@ class ReprintPayload {
     };
   }
 
-  static ReprintPayload fromJson(Map json) {
-    return ReprintPayload(
+  static StoneReprintPayload fromJson(Map json) {
+    return StoneReprintPayload(
       atk: json['atk'],
-      typeCustomer: TypeCustomer.values.firstWhere((e) => e.name == json['type_customer'], orElse: () => TypeCustomer.MERCHANT),
+      typeCustomer: StoneTypeCustomer.values.firstWhere((e) => e.name == json['type_customer'], orElse: () => StoneTypeCustomer.MERCHANT),
       showFeedbackScreen: json['show_feedback_screen'],
     );
   }
@@ -545,7 +545,7 @@ class ReprintPayload {
 ```
 ## Resposta de reeimpressão
 
-Caso a impressão seja bem-sucedida, a resposta será `void` caso contrário, será lançada uma exceção `ReprintException` com a mensagem de erro.
+Caso a impressão seja bem-sucedida, a resposta será `void` caso contrário, será lançada uma exceção `StoneReprintException` com a mensagem de erro.
 
 ## Considerações Finais
 

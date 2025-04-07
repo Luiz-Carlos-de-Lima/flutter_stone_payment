@@ -1,22 +1,26 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_stone_payment/constants/installment_type.dart';
-import 'package:flutter_stone_payment/constants/print_content_types.dart';
-import 'package:flutter_stone_payment/constants/reprint_type.dart';
-import 'package:flutter_stone_payment/constants/transaction_type.dart';
-import 'package:flutter_stone_payment/exceptions/cancel_exception.dart';
-import 'package:flutter_stone_payment/exceptions/payment_exception.dart';
-import 'package:flutter_stone_payment/exceptions/print_exception.dart';
-import 'package:flutter_stone_payment/exceptions/reprint_exception.dart';
+import 'package:flutter_stone_payment/constants/stone_info_exception.dart';
+
+import 'package:flutter_stone_payment/constants/stone_installment_type.dart';
+import 'package:flutter_stone_payment/constants/stone_print_content_types.dart';
+import 'package:flutter_stone_payment/constants/stone_reprint_type.dart';
+import 'package:flutter_stone_payment/constants/stone_transaction_type.dart';
+import 'package:flutter_stone_payment/exceptions/stone_cancel_exception.dart';
+import 'package:flutter_stone_payment/exceptions/stone_payment_exception.dart';
+import 'package:flutter_stone_payment/exceptions/stone_print_exception.dart';
+import 'package:flutter_stone_payment/exceptions/stone_reprint_exception.dart';
 import 'package:flutter_stone_payment/flutter_stone_payment.dart';
-import 'package:flutter_stone_payment/models/cancel_payload.dart';
-import 'package:flutter_stone_payment/models/content_print.dart';
-import 'package:flutter_stone_payment/models/payment_payload.dart';
-import 'package:flutter_stone_payment/models/print_payload.dart';
-import 'package:flutter_stone_payment/models/reprint_payload.dart';
+import 'package:flutter_stone_payment/models/stone_cancel_payload.dart';
+import 'package:flutter_stone_payment/models/stone_content_print.dart';
+import 'package:flutter_stone_payment/models/stone_payment_payload.dart';
+import 'package:flutter_stone_payment/models/stone_print_payload.dart';
+import 'package:flutter_stone_payment/models/stone_reprint_payload.dart';
 import 'package:http/http.dart' as http;
+import 'dart:ui' as ui;
 
 void main() {
   runApp(const MaterialApp(home: PaymentApp()));
@@ -77,6 +81,24 @@ class PaymentApp extends StatelessWidget {
                   child: Text('Reimprimir'),
                 ),
               ),
+              SizedBox(
+                width: 300,
+                height: 45,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    try {
+                      final info = await FlutterStonePayment().deviceInfo();
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Device info: ${info.toJson()}")));
+                    } on StoneInfoException catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro desconhecido')));
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.pink, foregroundColor: Colors.white),
+                  child: Text('Device Info'),
+                ),
+              ),
             ],
           ),
         ),
@@ -86,7 +108,7 @@ class PaymentApp extends StatelessWidget {
 }
 
 class _PaymentPage extends StatefulWidget {
-  const _PaymentPage({super.key});
+  const _PaymentPage();
 
   @override
   State<_PaymentPage> createState() => _PaymentPageState();
@@ -96,19 +118,20 @@ class _PaymentPageState extends State<_PaymentPage> {
   final _amountEC = TextEditingController();
   final _qtdEC = TextEditingController();
   final _flutterStonePaymentPlugin = FlutterStonePayment();
-  final List<DropdownMenuItem<TransactionType?>> _listTypes = TransactionType.values.map((e) => DropdownMenuItem(value: e, child: Text(e.name))).toList();
-  final List<DropdownMenuItem<InstallmentType?>> _listInstallmentType =
-      InstallmentType.values.map((e) => DropdownMenuItem(value: e, child: Text(e.name))).toList();
-  TransactionType? _transactionType;
-  InstallmentType? _transactionInstallmentType;
+  final List<DropdownMenuItem<StoneTransactionType?>> _listTypes =
+      StoneTransactionType.values.map((e) => DropdownMenuItem(value: e, child: Text(e.name))).toList();
+  final List<DropdownMenuItem<StoneInstallmentType?>> _listInstallmentType =
+      StoneInstallmentType.values.map((e) => DropdownMenuItem(value: e, child: Text(e.name))).toList();
+  StoneTransactionType? _transactionType;
+  StoneInstallmentType? _transactionInstallmentType;
 
   bool _editableAmount = false;
 
   @override
   void initState() {
     super.initState();
-    _listTypes.add(DropdownMenuItem<TransactionType>(value: null, child: Text('NENHUM')));
-    _listInstallmentType.add(DropdownMenuItem<InstallmentType>(value: null, child: Text('NENHUM')));
+    _listTypes.add(DropdownMenuItem<StoneTransactionType>(value: null, child: Text('NENHUM')));
+    _listInstallmentType.add(DropdownMenuItem<StoneInstallmentType>(value: null, child: Text('NENHUM')));
   }
 
   @override
@@ -162,7 +185,7 @@ class _PaymentPageState extends State<_PaymentPage> {
                     ),
                     keyboardType: TextInputType.number,
                   ),
-                  // if (_transactionType == TransactionType.CREDIT)
+                  // if (_transactionType == StoneTransactionType.CREDIT)
                   Padding(
                     padding: const EdgeInsets.only(top: 10.0),
                     child: Row(
@@ -267,7 +290,7 @@ class _PaymentPageState extends State<_PaymentPage> {
                       try {
                         double? amount = double.tryParse(_amountEC.text);
                         int? qtdPar = int.tryParse(_qtdEC.text);
-                        final payment = PaymentPayload(
+                        final payment = StonePaymentPayload(
                             amount: amount,
                             transactionType: _transactionType,
                             orderId: Random().nextInt(1000).toString(),
@@ -276,14 +299,14 @@ class _PaymentPageState extends State<_PaymentPage> {
                             editableAmount: _editableAmount);
                         final response = await _flutterStonePaymentPlugin.pay(paymentPayload: payment);
 
-                        final print = PrintPayload(
-                            printableContent: [Contentprint(type: PrintType.line, content: response.toJson().toString())], showFeedbackScreen: false);
+                        final print = StonePrintPayload(
+                            printableContent: [StoneContentprint(type: StonePrintType.line, content: response.toJson().toString())], showFeedbackScreen: false);
                         await _flutterStonePaymentPlugin.print(printPayload: print);
 
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Simulacao pagamento e Impressão realizada com sucesso!")));
-                      } on PaymentException catch (e) {
+                      } on StonePaymentException catch (e) {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
-                      } on PrintException catch (e) {
+                      } on StonePrintException catch (e) {
                         ScaffoldMessenger.of(context)
                             .showSnackBar(SnackBar(content: Text("Simulação de pagamento realizado mas erro na impressão: ${e.message}")));
                       } catch (e) {
@@ -304,7 +327,7 @@ class _PaymentPageState extends State<_PaymentPage> {
 }
 
 class _CancelPage extends StatefulWidget {
-  const _CancelPage({super.key});
+  const _CancelPage();
 
   @override
   State<_CancelPage> createState() => _CancelPageState();
@@ -411,24 +434,24 @@ class _CancelPageState extends State<_CancelPage> {
                       try {
                         _responseCancel = "SEM RESPOSTA";
                         double? amount = double.tryParse(_amountEC.text);
-                        final cancel = CancelPayload(amount: amount, atk: _atkEC.text, editableAmount: _editableAmount);
+                        final cancel = StoneCancelPayload(amount: amount, atk: _atkEC.text, editableAmount: _editableAmount);
                         final response = await _flutterStonePaymentPlugin.cancel(cancelPayload: cancel);
                         _responseCancel = response.toJson().toString();
-                        final print = PrintPayload(printableContent: [
-                          Contentprint(
-                              type: PrintType.text,
-                              align: PrintAlign.center,
-                              size: PrintSize.big,
+                        final print = StonePrintPayload(printableContent: [
+                          StoneContentprint(
+                              type: StonePrintType.text,
+                              align: StonePrintAlign.center,
+                              size: StonePrintSize.big,
                               content: "Cancelamento Simulado\n\n${response.toJson().toString()}"),
                         ], showFeedbackScreen: false);
                         await _flutterStonePaymentPlugin.print(printPayload: print);
 
                         ScaffoldMessenger.of(context)
                             .showSnackBar(SnackBar(content: Text("Simulacao Cancelamento e Impressão realizada com sucesso! $cancel")));
-                      } on CancelException catch (e) {
+                      } on StoneCancelException catch (e) {
                         _responseCancel = e.message;
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
-                      } on PrintException catch (e) {
+                      } on StonePrintException catch (e) {
                         _responseCancel = e.message;
                         ScaffoldMessenger.of(context)
                             .showSnackBar(SnackBar(content: Text("Simulação de pagamento realizado mas erro na impressão: ${e.message}")));
@@ -453,7 +476,7 @@ class _CancelPageState extends State<_CancelPage> {
 }
 
 class _PrintPage extends StatefulWidget {
-  const _PrintPage({super.key});
+  const _PrintPage();
 
   @override
   State<_PrintPage> createState() => _PrintPageState();
@@ -462,13 +485,13 @@ class _PrintPage extends StatefulWidget {
 class _PrintPageState extends State<_PrintPage> {
   final _flutterStonePaymentPlugin = FlutterStonePayment();
   final _printTextEC = TextEditingController();
-  final List<DropdownMenuItem<PrintType>> _listPrintType = PrintType.values.map((e) => DropdownMenuItem(value: e, child: Text(e.name))).toList();
-  final List<DropdownMenuItem<PrintAlign>> _listPrintAlign = PrintAlign.values.map((e) => DropdownMenuItem(value: e, child: Text(e.name))).toList();
-  final List<DropdownMenuItem<PrintSize>> _listPrintSize = PrintSize.values.map((e) => DropdownMenuItem(value: e, child: Text(e.name))).toList();
+  final List<DropdownMenuItem<StonePrintType>> _listPrintType = StonePrintType.values.map((e) => DropdownMenuItem(value: e, child: Text(e.name))).toList();
+  final List<DropdownMenuItem<StonePrintAlign>> _listPrintAlign = StonePrintAlign.values.map((e) => DropdownMenuItem(value: e, child: Text(e.name))).toList();
+  final List<DropdownMenuItem<StonePrintSize>> _listPrintSize = StonePrintSize.values.map((e) => DropdownMenuItem(value: e, child: Text(e.name))).toList();
 
-  PrintType _printType = PrintType.line;
-  PrintAlign? _printAlign = PrintAlign.center;
-  PrintSize? _printSize = PrintSize.medium;
+  StonePrintType _printType = StonePrintType.line;
+  StonePrintAlign? _printAlign = StonePrintAlign.center;
+  StonePrintSize? _printSize = StonePrintSize.medium;
 
   bool _showFeedbackScreen = false;
 
@@ -509,9 +532,9 @@ class _PrintPageState extends State<_PrintPage> {
                       underline: Container(),
                       onChanged: (value) {
                         _printType = value!;
-                        if (_printType == PrintType.text) {
-                          _printAlign = PrintAlign.center;
-                          _printSize = PrintSize.medium;
+                        if (_printType == StonePrintType.text) {
+                          _printAlign = StonePrintAlign.center;
+                          _printSize = StonePrintSize.medium;
                         } else {
                           _printAlign = null;
                           _printSize = null;
@@ -520,7 +543,7 @@ class _PrintPageState extends State<_PrintPage> {
                       },
                     ),
                   ),
-                  if (_printType == PrintType.text)
+                  if (_printType == StonePrintType.text)
                     Column(
                       children: [
                         SizedBox(height: 10),
@@ -546,7 +569,7 @@ class _PrintPageState extends State<_PrintPage> {
                         ),
                       ],
                     ),
-                  if (_printType == PrintType.text)
+                  if (_printType == StonePrintType.text)
                     Column(
                       children: [
                         SizedBox(height: 10),
@@ -572,7 +595,7 @@ class _PrintPageState extends State<_PrintPage> {
                         ),
                       ],
                     ),
-                  (_printType != PrintType.image)
+                  (_printType != StonePrintType.image)
                       ? Column(
                           children: [
                             SizedBox(height: 10),
@@ -588,7 +611,7 @@ class _PrintPageState extends State<_PrintPage> {
                           ],
                         )
                       : Column(
-                          children: [Image.network('https://zup.com.br/wp-content/uploads/2021/03/5ce2fde702ef93c1e994d987_flutter.png')],
+                          children: [Image.network('https://css-tricks.com/wp-content/uploads/2022/08/flutter-clouds.jpg')],
                         ),
                   InkWell(
                     onTap: () {
@@ -643,15 +666,15 @@ class _PrintPageState extends State<_PrintPage> {
                     onPressed: () async {
                       try {
                         String? image64;
-                        if (_printType == PrintType.image) {
-                          image64 = await imageToBase64('https://zup.com.br/wp-content/uploads/2021/03/5ce2fde702ef93c1e994d987_flutter.png');
+                        if (_printType == StonePrintType.image) {
+                          image64 = await imageToBase64('https://css-tricks.com/wp-content/uploads/2022/08/flutter-clouds.jpg');
                         }
-                        final print = PrintPayload(printableContent: [
-                          Contentprint(type: _printType, align: _printAlign, content: _printTextEC.text, size: _printSize, imagePath: image64)
+                        final print = StonePrintPayload(printableContent: [
+                          StoneContentprint(type: _printType, align: _printAlign, content: _printTextEC.text, size: _printSize, imagePath: image64)
                         ], showFeedbackScreen: _showFeedbackScreen);
                         await _flutterStonePaymentPlugin.print(printPayload: print);
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Impressão realizada com sucesso!")));
-                      } on PrintException catch (e) {
+                      } on StonePrintException catch (e) {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
                       } catch (e) {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro desconhecido')));
@@ -673,17 +696,53 @@ class _PrintPageState extends State<_PrintPage> {
     try {
       final response = await http.get(Uri.parse(imageUrl));
       if (response.statusCode == 200) {
-        return base64Encode(response.bodyBytes);
+        final originalBytes = response.bodyBytes;
+
+        // Decodifica a imagem original
+        final codec = await ui.instantiateImageCodec(originalBytes);
+        final frame = await codec.getNextFrame();
+        final image = frame.image;
+
+        const maxWidth = 380;
+        final originalWidth = image.width;
+        final originalHeight = image.height;
+
+        // Se a largura for menor que maxWidth, usa a imagem original
+        if (originalWidth <= maxWidth) {
+          return base64Encode(originalBytes);
+        }
+
+        // Calcula nova altura mantendo proporção
+        final ratio = maxWidth / originalWidth;
+        final targetHeight = (originalHeight * ratio).round();
+
+        // Cria nova imagem redimensionada
+        final recorder = ui.PictureRecorder();
+        final canvas = ui.Canvas(recorder);
+
+        canvas.drawImageRect(image, Rect.fromLTWH(0, 0, originalWidth.toDouble(), originalHeight.toDouble()),
+            Rect.fromLTWH(0, 0, maxWidth.toDouble(), targetHeight.toDouble()), Paint()..filterQuality = ui.FilterQuality.high);
+
+        final picture = recorder.endRecording();
+        final resizedImage = await picture.toImage(maxWidth, targetHeight);
+        final byteData = await resizedImage.toByteData(format: ui.ImageByteFormat.png);
+
+        if (byteData != null) {
+          return base64Encode(byteData.buffer.asUint8List());
+        }
       }
+      return null;
     } catch (e) {
-      print("Erro ao converter imagem para Base64: $e");
+      if (kDebugMode) {
+        print("Erro ao converter imagem para Base64: $e");
+      }
+      return null;
     }
-    return null;
   }
 }
 
 class _ReprintPage extends StatefulWidget {
-  const _ReprintPage({super.key});
+  const _ReprintPage();
 
   @override
   State<_ReprintPage> createState() => _ReprintPageState();
@@ -692,9 +751,10 @@ class _ReprintPage extends StatefulWidget {
 class _ReprintPageState extends State<_ReprintPage> {
   final _flutterStonePaymentPlugin = FlutterStonePayment();
   final _atkEC = TextEditingController();
-  final List<DropdownMenuItem<TypeCustomer>> _listTypeCustomer = TypeCustomer.values.map((e) => DropdownMenuItem(value: e, child: Text(e.name))).toList();
+  final List<DropdownMenuItem<StoneTypeCustomer>> _listTypeCustomer =
+      StoneTypeCustomer.values.map((e) => DropdownMenuItem(value: e, child: Text(e.name))).toList();
 
-  TypeCustomer _typeCustomer = TypeCustomer.MERCHANT;
+  StoneTypeCustomer _typeCustomer = StoneTypeCustomer.MERCHANT;
 
   bool _showFeedbackScreen = false;
 
@@ -800,10 +860,10 @@ class _ReprintPageState extends State<_ReprintPage> {
                   child: ElevatedButton(
                     onPressed: () async {
                       try {
-                        final reprint = ReprintPayload(atk: _atkEC.text, typeCustomer: _typeCustomer, showFeedbackScreen: _showFeedbackScreen);
+                        final reprint = StoneReprintPayload(atk: _atkEC.text, typeCustomer: _typeCustomer, showFeedbackScreen: _showFeedbackScreen);
                         await _flutterStonePaymentPlugin.reprint(reprintPayload: reprint);
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Impressão realizada com sucesso!")));
-                      } on ReprintException catch (e) {
+                      } on StoneReprintException catch (e) {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
                       } catch (e) {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro desconhecido')));

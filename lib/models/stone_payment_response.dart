@@ -1,4 +1,4 @@
-class PaymentResponse {
+class StonePaymentResponse {
   final String cardholderName;
   final String itk;
   final String atk;
@@ -16,7 +16,7 @@ class PaymentResponse {
   final String transactionQualifier;
   final String amount;
 
-  PaymentResponse(
+  StonePaymentResponse(
       {required this.cardholderName,
       required this.itk,
       required this.atk,
@@ -34,8 +34,8 @@ class PaymentResponse {
       required this.transactionQualifier,
       required this.amount});
 
-  static PaymentResponse fromJson(Map json) {
-    return PaymentResponse(
+  static StonePaymentResponse fromJson(Map json) {
+    return StonePaymentResponse(
       cardholderName: json['cardholder_name'] ?? "cardholder_name is Null",
       itk: json['itk'] ?? "itk is Null",
       atk: json['atk'] ?? "atk is Null",

@@ -1,9 +1,9 @@
-class CancelPayload {
+class StoneCancelPayload {
   final double? amount;
   final String atk;
   final bool editableAmount;
 
-  CancelPayload({required this.amount, required this.atk, this.editableAmount = false});
+  StoneCancelPayload({required this.amount, required this.atk, this.editableAmount = false});
 
   Map<String, dynamic> toJson() {
     return {
@@ -13,8 +13,8 @@ class CancelPayload {
     };
   }
 
-  static CancelPayload fromJson(Map json) {
-    return CancelPayload(
+  static StoneCancelPayload fromJson(Map json) {
+    return StoneCancelPayload(
       amount: json['amount'],
       atk: json['atk'],
       editableAmount: json['editable_amount'],
