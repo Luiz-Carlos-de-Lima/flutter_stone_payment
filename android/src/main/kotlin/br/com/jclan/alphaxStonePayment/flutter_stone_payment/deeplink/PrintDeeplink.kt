@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import br.com.jclan.alphaxStonePayment.flutter_stone_payment.services.Print
 import com.google.gson.Gson
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 
@@ -16,7 +17,7 @@ class PrintDeeplink: Deeplink {
             validatePrintContent(printableContent)
 
             val gson = Gson()
-            val printableToJson = gson.toJson(convertPrintableContentInMapAndReturn(printableContent!!))
+            val printableToJson = gson.toJson(Print().convertPrintableItemsToImageBase64(binding.activity, printableContent!!))
             val uriBuilder = Uri.Builder()
 
             uriBuilder.authority("print")
@@ -77,16 +78,7 @@ class PrintDeeplink: Deeplink {
         }
     }
 
-    private fun convertPrintableContentInMapAndReturn(printableContent: List<Bundle>): MutableList<Map<String, Any?>> {
-        val newListPrintable: MutableList<Map<String, Any?>> = ArrayList()
 
-        for (content: Bundle in printableContent) {
-            val map = content.keySet().associateWith { key -> content.get(key) }
-            newListPrintable.add(map)
-        }
-
-        return newListPrintable
-    }
 
     private fun Bundle.toMap(): Map<String, Any?> {
         val map = mutableMapOf<String, Any?>()

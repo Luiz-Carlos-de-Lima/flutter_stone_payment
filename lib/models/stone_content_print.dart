@@ -6,14 +6,10 @@ class StoneContentprint {
   final StonePrintAlign? align;
   final StonePrintSize? size;
   final String? imagePath;
+  final bool ignoreLineBreak;
 
-  StoneContentprint({
-    required this.type,
-    this.content,
-    this.align,
-    this.size,
-    this.imagePath,
-  })  : assert(
+  StoneContentprint({required this.type, this.content, this.align, this.size, this.imagePath, this.ignoreLineBreak = false})
+      : assert(
           type != StonePrintType.text || (content is String && align is StonePrintAlign && size is StonePrintSize),
           "content, align, and size must be defined when type is text",
         ),
@@ -31,7 +27,7 @@ class StoneContentprint {
 
     return {
       'type': type.name.toString(),
-      'content': type != StonePrintType.image ? content : null,
+      'content': type != StonePrintType.image ? _formatContent() : null,
       'align': disableAlignAndSize ? null : align?.name.toString(),
       'size': disableAlignAndSize ? null : size?.name.toString(),
       'imagePath': type == StonePrintType.image ? imagePath : null,
@@ -46,5 +42,57 @@ class StoneContentprint {
       size: json['size'] != null ? StonePrintSize.values.firstWhere((e) => e.name == json['size']) : null,
       imagePath: json['imagePath'],
     );
+  }
+
+  /// Método para formatar o conteúdo evitando cortes no meio das palavras e tratando palavras maiores que o limite da linha.
+  String _formatContent() {
+    if (ignoreLineBreak == true) {
+      return content ?? '';
+    }
+    if (type == StonePrintType.image || content == null || size == null) return content ?? '';
+
+    int maxLength = _getMaxLength(size!);
+    List<String> lines = [];
+    List<String> words = content!.split(' ');
+    String currentLine = '';
+
+    for (var word in words) {
+      if (word.length > maxLength) {
+        // Se a palavra for maior que o limite da linha, quebra a palavra
+        if (currentLine.isNotEmpty) {
+          lines.add(currentLine);
+          currentLine = '';
+        }
+
+        // Divide a palavra em partes do tamanho máximo permitido
+        for (int i = 0; i < word.length; i += maxLength) {
+          lines.add(word.substring(i, (i + maxLength) > word.length ? word.length : (i + maxLength)));
+        }
+      } else if (currentLine.isEmpty) {
+        currentLine = word;
+      } else if ((currentLine.length + word.length + 1) <= maxLength) {
+        currentLine += ' $word';
+      } else {
+        lines.add(currentLine);
+        currentLine = word;
+      }
+    }
+
+    if (currentLine.isNotEmpty) {
+      lines.add(currentLine);
+    }
+
+    return lines.join("\n");
+  }
+
+  /// Retorna o tamanho máximo de caracteres permitido para cada tamanho de impressão
+  int _getMaxLength(StonePrintSize size) {
+    switch (size) {
+      case StonePrintSize.small:
+        return 48;
+      case StonePrintSize.medium:
+      case StonePrintSize.big:
+        return 32;
+    }
   }
 }

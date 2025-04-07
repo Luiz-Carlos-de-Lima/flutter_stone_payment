@@ -20,6 +20,7 @@ import 'package:flutter_stone_payment/models/stone_payment_payload.dart';
 import 'package:flutter_stone_payment/models/stone_print_payload.dart';
 import 'package:flutter_stone_payment/models/stone_reprint_payload.dart';
 import 'package:http/http.dart' as http;
+import 'dart:ui' as ui;
 
 void main() {
   runApp(const MaterialApp(home: PaymentApp()));
@@ -610,7 +611,7 @@ class _PrintPageState extends State<_PrintPage> {
                           ],
                         )
                       : Column(
-                          children: [Image.network('https://zup.com.br/wp-content/uploads/2021/03/5ce2fde702ef93c1e994d987_flutter.png')],
+                          children: [Image.network('https://css-tricks.com/wp-content/uploads/2022/08/flutter-clouds.jpg')],
                         ),
                   InkWell(
                     onTap: () {
@@ -666,7 +667,7 @@ class _PrintPageState extends State<_PrintPage> {
                       try {
                         String? image64;
                         if (_printType == StonePrintType.image) {
-                          image64 = await imageToBase64('https://zup.com.br/wp-content/uploads/2021/03/5ce2fde702ef93c1e994d987_flutter.png');
+                          image64 = await imageToBase64('https://css-tricks.com/wp-content/uploads/2022/08/flutter-clouds.jpg');
                         }
                         final print = StonePrintPayload(printableContent: [
                           StoneContentprint(type: _printType, align: _printAlign, content: _printTextEC.text, size: _printSize, imagePath: image64)
@@ -695,14 +696,48 @@ class _PrintPageState extends State<_PrintPage> {
     try {
       final response = await http.get(Uri.parse(imageUrl));
       if (response.statusCode == 200) {
-        return base64Encode(response.bodyBytes);
+        final originalBytes = response.bodyBytes;
+
+        // Decodifica a imagem original
+        final codec = await ui.instantiateImageCodec(originalBytes);
+        final frame = await codec.getNextFrame();
+        final image = frame.image;
+
+        const maxWidth = 380;
+        final originalWidth = image.width;
+        final originalHeight = image.height;
+
+        // Se a largura for menor que maxWidth, usa a imagem original
+        if (originalWidth <= maxWidth) {
+          return base64Encode(originalBytes);
+        }
+
+        // Calcula nova altura mantendo proporção
+        final ratio = maxWidth / originalWidth;
+        final targetHeight = (originalHeight * ratio).round();
+
+        // Cria nova imagem redimensionada
+        final recorder = ui.PictureRecorder();
+        final canvas = ui.Canvas(recorder);
+
+        canvas.drawImageRect(image, Rect.fromLTWH(0, 0, originalWidth.toDouble(), originalHeight.toDouble()),
+            Rect.fromLTWH(0, 0, maxWidth.toDouble(), targetHeight.toDouble()), Paint()..filterQuality = ui.FilterQuality.high);
+
+        final picture = recorder.endRecording();
+        final resizedImage = await picture.toImage(maxWidth, targetHeight);
+        final byteData = await resizedImage.toByteData(format: ui.ImageByteFormat.png);
+
+        if (byteData != null) {
+          return base64Encode(byteData.buffer.asUint8List());
+        }
       }
+      return null;
     } catch (e) {
       if (kDebugMode) {
         print("Erro ao converter imagem para Base64: $e");
       }
+      return null;
     }
-    return null;
   }
 }
 
