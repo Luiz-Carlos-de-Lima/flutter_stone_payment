@@ -52,6 +52,8 @@ class Print {
         align: String,
         size: String
     ): Bitmap {
+        Log.d("SIZE", size.toString())
+
         val maxCharsPerLine = when (size) {
             "big", "medium" -> 32
             "small" -> 48
@@ -59,16 +61,16 @@ class Print {
         }
 
         val fontSize = when (size) {
-            "big" -> 28f
-            "medium" -> 22f
-            "small" -> 18f
-            else -> 18f
+            "big" -> 20f
+            "medium" -> 18f
+            "small" -> 14f
+            else -> 14f
         }
 
         val paint = Paint().apply {
             color = Color.BLACK
             textSize = fontSize
-            typeface = Typeface.DEFAULT_BOLD
+            typeface = Typeface.createFromAsset(context.assets, "fonts/JetBrainsMono-Bold.ttf")
             isAntiAlias = true
         }
 
@@ -77,42 +79,37 @@ class Print {
             .flatMap { splitLine(it, maxCharsPerLine) }
 
         val metrics = paint.fontMetrics
-        val lineHeight = (metrics.bottom - metrics.top).toInt() + 10
-        val width = 380
+        val lineHeight = (metrics.bottom - metrics.top).toInt()
+        val width = 384
         val height = lineHeight * lines.size
 
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         canvas.drawColor(Color.WHITE)
-
+//        paint.style = Paint.Style.FILL_AND_STROKE;
+//        paint.strokeWidth = 1F;
         lines.forEachIndexed { index, line ->
             val x = when (align) {
                 "center" -> (width - paint.measureText(line)) / 2
                 "right" -> (width - paint.measureText(line))
                 else -> 0f
             }
-            val y = (index + 1) * lineHeight.toFloat()
+            val y = (index * lineHeight) - paint.fontMetrics.top
             canvas.drawText(line, x, y, paint)
         }
-
+        Log.d("bitmap", bitmap.toString())
         return bitmap
     }
 
     private fun splitLine(text: String, maxChars: Int): List<String> {
-        val words = text.split(" ")
         val result = mutableListOf<String>()
-        var currentLine = ""
+        var start = 0
 
-        for (word in words) {
-            if ((currentLine + word).length > maxChars) {
-                result.add(currentLine.trim())
-                currentLine = "$word "
-            } else {
-                currentLine += "$word "
-            }
+        while (start < text.length) {
+            val end = minOf(start + maxChars, text.length)
+            result.add(text.substring(start, end))
+            start = end
         }
-
-        if (currentLine.isNotEmpty()) result.add(currentLine.trim())
         return result
     }
 

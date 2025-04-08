@@ -25,5 +25,8 @@
 # 1.1.1
 * fixed bugs
 
-# 1.1.1
+# 1.1.2
 * Adjusted custom printing with improved text visibility
+
+# 1.1.3
+* alignment correction in custom prints
