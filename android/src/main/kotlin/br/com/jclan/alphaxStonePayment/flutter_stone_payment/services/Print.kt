@@ -78,10 +78,16 @@ class Print {
             .split("\n")
             .flatMap { splitLine(it, maxCharsPerLine) }
 
+        var lineHeigth = 1;
+
+        if (lines.isNotEmpty()) {
+            lineHeigth = lines.size
+        }
+
         val metrics = paint.fontMetrics
         val lineHeight = (metrics.bottom - metrics.top).toInt()
         val width = 384
-        val height = lineHeight * lines.size
+        val height = lineHeight * lineHeigth
 
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)

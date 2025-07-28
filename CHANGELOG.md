@@ -30,3 +30,6 @@
 
 # 1.1.3
 * alignment correction in custom prints
+
+# 1.1.5
+* fixed bugs
