@@ -7,7 +7,7 @@ import android.util.Log
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 
 class PaymentDeeplink: Deeplink {
-    override fun startDeeplink(binding: ActivityPluginBinding ,bundle: Bundle) : Bundle {
+    override fun startDeeplink(binding: ActivityPluginBinding, bundle: Bundle) : Bundle {
         try {
             val amount: String? = bundle.getString("amount")
             val transactionType: String? = bundle.getString("transaction_type")

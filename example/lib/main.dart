@@ -483,32 +483,83 @@ class _PrintPage extends StatefulWidget {
 }
 
 class _PrintPageState extends State<_PrintPage> {
-  final _flutterStonePaymentPlugin = FlutterStonePayment();
   final _printTextEC = TextEditingController();
+  final _imagePathEC = TextEditingController();
   final List<DropdownMenuItem<StonePrintType>> _listPrintType = StonePrintType.values.map((e) => DropdownMenuItem(value: e, child: Text(e.name))).toList();
   final List<DropdownMenuItem<StonePrintAlign>> _listPrintAlign = StonePrintAlign.values.map((e) => DropdownMenuItem(value: e, child: Text(e.name))).toList();
   final List<DropdownMenuItem<StonePrintSize>> _listPrintSize = StonePrintSize.values.map((e) => DropdownMenuItem(value: e, child: Text(e.name))).toList();
 
   StonePrintType _printType = StonePrintType.line;
-  StonePrintAlign? _printAlign = StonePrintAlign.center;
-  StonePrintSize? _printSize = StonePrintSize.medium;
+  StonePrintAlign? _printAlign = null;
+  StonePrintSize? _printSize = null;
+  bool _ignoreLineBreak = false;
+  String? _defaultImage64;
+  List<Map> _previewBase64 = [];
 
-  bool _showFeedbackScreen = false;
+  final List<StoneContentprint> _receiptContent = [];
 
   @override
   void initState() {
     super.initState();
+    _loadDefaultImage();
+  }
+
+  @override
+  void dispose() {
+    _printTextEC.dispose();
+    _imagePathEC.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadDefaultImage() async {
+    final image64 = await imageToBase64('https://css-tricks.com/wp-content/uploads/2022/08/flutter-clouds.jpg');
+    setState(() {
+      _defaultImage64 = image64;
+      if (_imagePathEC.text.isEmpty && image64 != null) {
+        _imagePathEC.text = image64;
+      }
+    });
+  }
+
+  void _addToReceipt() {
+    String? image64;
+    if (_printType == StonePrintType.image) {
+      image64 = _imagePathEC.text.isNotEmpty ? _imagePathEC.text : _defaultImage64;
+      if (image64 == null || image64.isEmpty) return;
+    }
+    if (_printType != StonePrintType.image && _printTextEC.text.isEmpty) return;
+
+    final item = StoneContentprint(
+      type: _printType,
+      align: _printAlign,
+      content: _printTextEC.text,
+      size: _printSize,
+      imagePath: image64,
+      ignoreLineBreak: _ignoreLineBreak,
+    );
+    setState(() {
+      _receiptContent.add(item);
+      _printTextEC.clear();
+    });
+  }
+
+  void _removeLine(int index) {
+    setState(() {
+      _receiptContent.removeAt(index);
+    });
+  }
+
+  void _clearReceipt() {
+    setState(() {
+      _receiptContent.clear();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
-          title: Text('impresssão'),
-          centerTitle: true,
-          leading: Container(),
-        ),
+        appBar: AppBar(title: Text('Impressão'), centerTitle: true, leading: Container()),
         body: Center(
           child: SingleChildScrollView(
             child: Padding(
@@ -520,10 +571,7 @@ class _PrintPageState extends State<_PrintPage> {
                   SizedBox(height: 10),
                   Container(
                     padding: const EdgeInsets.all(10.0),
-                    decoration: BoxDecoration(
-                      border: Border.all(),
-                      borderRadius: BorderRadius.circular(5),
-                    ),
+                    decoration: BoxDecoration(border: Border.all(), borderRadius: BorderRadius.circular(5)),
                     height: 55,
                     child: DropdownButton(
                       value: _printType,
@@ -531,112 +579,152 @@ class _PrintPageState extends State<_PrintPage> {
                       isExpanded: true,
                       underline: Container(),
                       onChanged: (value) {
-                        _printType = value!;
-                        if (_printType == StonePrintType.text) {
-                          _printAlign = StonePrintAlign.center;
-                          _printSize = StonePrintSize.medium;
-                        } else {
-                          _printAlign = null;
-                          _printSize = null;
-                        }
-                        setState(() {});
+                        setState(() {
+                          _printType = value!;
+                          if (_printType == StonePrintType.text) {
+                            _printAlign = StonePrintAlign.center;
+                            _printSize = StonePrintSize.medium;
+                          } else {
+                            _printAlign = null;
+                            _printSize = null;
+                          }
+                        });
                       },
                     ),
                   ),
-                  if (_printType == StonePrintType.text)
+                  if (_printType == StonePrintType.text) ...[
+                    SizedBox(height: 10),
+                    Align(alignment: Alignment.centerLeft, child: Text('Alinhamento da Impressão')),
+                    SizedBox(height: 10),
+                    Container(
+                      padding: const EdgeInsets.all(10.0),
+                      decoration: BoxDecoration(border: Border.all(), borderRadius: BorderRadius.circular(5)),
+                      height: 55,
+                      child: DropdownButton(
+                        value: _printAlign,
+                        items: _listPrintAlign,
+                        isExpanded: true,
+                        underline: Container(),
+                        onChanged: (value) {
+                          setState(() {
+                            _printAlign = value!;
+                          });
+                        },
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Align(alignment: Alignment.centerLeft, child: Text('Tamanho da Impressão')),
+                    SizedBox(height: 10),
+                    Container(
+                      padding: const EdgeInsets.all(10.0),
+                      decoration: BoxDecoration(border: Border.all(), borderRadius: BorderRadius.circular(5)),
+                      height: 55,
+                      child: DropdownButton(
+                        value: _printSize,
+                        items: _listPrintSize,
+                        isExpanded: true,
+                        underline: Container(),
+                        onChanged: (value) {
+                          setState(() {
+                            _printSize = value!;
+                          });
+                        },
+                      ),
+                    ),
+                    SwitchListTile(
+                      title: Text('Ignorar Quebra de Linha'),
+                      value: _ignoreLineBreak,
+                      onChanged: (val) {
+                        setState(() {
+                          _ignoreLineBreak = val;
+                        });
+                      },
+                    ),
+                  ],
+                  if (_printType != StonePrintType.image)
                     Column(
                       children: [
                         SizedBox(height: 10),
-                        Align(alignment: Alignment.centerLeft, child: Text('Alinhamento da Impressão')),
+                        Align(alignment: Alignment.centerLeft, child: Text('Texto para Impressão')),
                         SizedBox(height: 10),
-                        Container(
-                          padding: const EdgeInsets.all(10.0),
-                          decoration: BoxDecoration(
-                            border: Border.all(),
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          height: 55,
-                          child: DropdownButton(
-                            value: _printAlign,
-                            items: _listPrintAlign,
-                            isExpanded: true,
-                            underline: Container(),
-                            onChanged: (value) {
-                              _printAlign = value!;
-                              setState(() {});
-                            },
-                          ),
+                        TextFormField(
+                          controller: _printTextEC,
+                          decoration: InputDecoration(hintText: 'Texto', border: OutlineInputBorder()),
                         ),
                       ],
-                    ),
-                  if (_printType == StonePrintType.text)
+                    )
+                  else
                     Column(
                       children: [
                         SizedBox(height: 10),
-                        Align(alignment: Alignment.centerLeft, child: Text('Tamanho da Impressão')),
+                        Align(alignment: Alignment.centerLeft, child: Text('Base64 da Imagem')),
                         SizedBox(height: 10),
-                        Container(
-                          padding: const EdgeInsets.all(10.0),
-                          decoration: BoxDecoration(
-                            border: Border.all(),
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          height: 55,
-                          child: DropdownButton(
-                            value: _printSize,
-                            items: _listPrintSize,
-                            isExpanded: true,
-                            underline: Container(),
-                            onChanged: (value) {
-                              _printSize = value!;
-                              setState(() {});
-                            },
-                          ),
+                        TextFormField(
+                          controller: _imagePathEC,
+                          decoration: InputDecoration(hintText: 'Cole o Base64 da imagem', border: OutlineInputBorder()),
+                          minLines: 2,
+                          maxLines: 4,
                         ),
+                        if (_defaultImage64 != null)
+                          Padding(padding: const EdgeInsets.symmetric(vertical: 10), child: Image.memory(base64Decode(_defaultImage64!))),
                       ],
                     ),
-                  (_printType != StonePrintType.image)
-                      ? Column(
-                          children: [
-                            SizedBox(height: 10),
-                            Align(alignment: Alignment.centerLeft, child: Text('Texto para Impressão')),
-                            SizedBox(height: 10),
-                            TextFormField(
-                              controller: _printTextEC,
-                              decoration: InputDecoration(
-                                hintText: 'Texto',
-                                border: OutlineInputBorder(),
+                  SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(onPressed: _addToReceipt, child: Text('Adicionar ao Recibo')),
+                      ),
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: ElevatedButton(onPressed: _receiptContent.isEmpty ? null : _clearReceipt, child: Text('Remover tudo')),
+                      ),
+                    ],
+                  ),
+                  Divider(height: 32),
+                  if (_receiptContent.isNotEmpty)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Conteúdo do Recibo:', style: TextStyle(fontWeight: FontWeight.bold)),
+                        ..._receiptContent.asMap().entries.map(
+                              (entry) => Card(
+                                margin: EdgeInsets.symmetric(vertical: 4),
+                                child: ListTile(
+                                  title: Text(entry.value.type.name),
+                                  subtitle: Text(entry.value.type == StonePrintType.image ? 'Imagem' : (entry.value.content ?? '')),
+                                  trailing: IconButton(
+                                    icon: Icon(Icons.delete, color: Colors.red),
+                                    tooltip: 'Remover linha',
+                                    onPressed: () => _removeLine(entry.key),
+                                  ),
+                                ),
                               ),
                             ),
-                          ],
-                        )
-                      : Column(
-                          children: [Image.network('https://css-tricks.com/wp-content/uploads/2022/08/flutter-clouds.jpg')],
-                        ),
-                  InkWell(
-                    onTap: () {
-                      setState(() {
-                        _showFeedbackScreen = !_showFeedbackScreen;
-                      });
-                    },
-                    child: Row(
-                      children: [
-                        Checkbox(
-                            value: _showFeedbackScreen,
-                            onChanged: (_) {
-                              setState(() {
-                                _showFeedbackScreen = !_showFeedbackScreen;
-                              });
-                            }),
-                        Expanded(
-                          child: Text(
-                            "Mostrar tela de feedback",
-                            style: TextStyle(fontSize: 18),
-                          ),
-                        ),
                       ],
                     ),
-                  ),
+                  SizedBox(height: 20),
+                  if (_previewBase64.isNotEmpty) ...[
+                    Text("Pré-visualização:", style: TextStyle(fontWeight: FontWeight.bold)),
+                    SizedBox(height: 10),
+                    ...List.generate(_previewBase64.length, (index) {
+                      if (_previewBase64[index]['imageBase64'] is String && _previewBase64[index]['imageBase64'].isNotEmpty) {
+                        return Column(
+                          children: [
+                            if (_previewBase64[index]['messageError'] != null)
+                              Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 10),
+                                child: Text(_previewBase64[index]['messageError'], style: TextStyle(color: Colors.red)),
+                              ),
+                            Padding(padding: const EdgeInsets.symmetric(vertical: 10), child: Image.memory(base64Decode(_previewBase64[index]['imageBase64']))),
+                          ],
+                        );
+                      }
+
+                      return SizedBox.shrink();
+                    }),
+                    SizedBox(height: 10),
+                  ],
                 ],
               ),
             ),
@@ -663,25 +751,66 @@ class _PrintPageState extends State<_PrintPage> {
                 child: SizedBox(
                   height: 40,
                   child: ElevatedButton(
-                    onPressed: () async {
-                      try {
-                        String? image64;
-                        if (_printType == StonePrintType.image) {
-                          image64 = await imageToBase64('https://css-tricks.com/wp-content/uploads/2022/08/flutter-clouds.jpg');
-                        }
-                        final print = StonePrintPayload(printableContent: [
-                          StoneContentprint(type: _printType, align: _printAlign, content: _printTextEC.text, size: _printSize, imagePath: image64)
-                        ], showFeedbackScreen: _showFeedbackScreen);
-                        await _flutterStonePaymentPlugin.print(printPayload: print);
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Impressão realizada com sucesso!")));
-                      } on StonePrintException catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
-                      } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro desconhecido')));
-                      }
-                    },
+                    onPressed: _receiptContent.isEmpty
+                        ? null
+                        : () async {
+                            try {
+                              final flutterStonePaymentPlugin = FlutterStonePayment();
+                              final print = StonePrintPayload(
+                                  printableContent: List<StoneContentprint>.from([
+                                    StoneContentprint(
+                                        type: StonePrintType.text,
+                                        content: '''                 JCLAN SISTEMAS                 
+------------------------------------------------
+          BAR           
+================================================
+Comanda: 44             
+------------------------------------------------
+Entregar na Mesa: 12                            
+------------------------------------------------
+IMP: 01/2 (BR)                                  
+At: 0 - Suporte                                 
+Term: 1                       Dt: 25/08/25 11:01
+================================================
+Qtde - Produto                                  
+------------------------------------------------
+1 - FANTA UVA                                   
+------------------------------------------------
+                  Data Impressao: 25/08/25 11:01
+                                                                 JCLAN SISTEMAS                 
+------------------------------------------------
+          BAR           
+================================================
+Comanda: 44             
+------------------------------------------------
+Entregar na Mesa: 12                            
+------------------------------------------------
+IMP: 11/2 (BR)                                  
+At: 0 - Suporte                                 
+Term: 1                       Dt: 25/08/25 11:01
+================================================
+Qtde - Produto                                  
+------------------------------------------------
+1 - DEL VALLE MARACUJA                          
+------------------------------------------------
+                  Data Impressao: 25/08/25 11:01
+''',
+                                        size: StonePrintSize.small,
+                                        ignoreLineBreak: true,
+                                        align: StonePrintAlign.left)
+                                  ]),
+                                  showFeedbackScreen: true);
+                              await flutterStonePaymentPlugin.print(printPayload: print);
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Impressão realizada com sucesso!")));
+                              setState(() {});
+                            } on StonePrintException catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro desconhecido')));
+                            }
+                          },
                     style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
-                    child: Text('imprimir'),
+                    child: Text('Imprimir'),
                   ),
                 ),
               ),
@@ -696,48 +825,14 @@ class _PrintPageState extends State<_PrintPage> {
     try {
       final response = await http.get(Uri.parse(imageUrl));
       if (response.statusCode == 200) {
-        final originalBytes = response.bodyBytes;
-
-        // Decodifica a imagem original
-        final codec = await ui.instantiateImageCodec(originalBytes);
-        final frame = await codec.getNextFrame();
-        final image = frame.image;
-
-        const maxWidth = 380;
-        final originalWidth = image.width;
-        final originalHeight = image.height;
-
-        // Se a largura for menor que maxWidth, usa a imagem original
-        if (originalWidth <= maxWidth) {
-          return base64Encode(originalBytes);
-        }
-
-        // Calcula nova altura mantendo proporção
-        final ratio = maxWidth / originalWidth;
-        final targetHeight = (originalHeight * ratio).round();
-
-        // Cria nova imagem redimensionada
-        final recorder = ui.PictureRecorder();
-        final canvas = ui.Canvas(recorder);
-
-        canvas.drawImageRect(image, Rect.fromLTWH(0, 0, originalWidth.toDouble(), originalHeight.toDouble()),
-            Rect.fromLTWH(0, 0, maxWidth.toDouble(), targetHeight.toDouble()), Paint()..filterQuality = ui.FilterQuality.high);
-
-        final picture = recorder.endRecording();
-        final resizedImage = await picture.toImage(maxWidth, targetHeight);
-        final byteData = await resizedImage.toByteData(format: ui.ImageByteFormat.png);
-
-        if (byteData != null) {
-          return base64Encode(byteData.buffer.asUint8List());
-        }
+        return base64Encode(response.bodyBytes);
       }
-      return null;
     } catch (e) {
       if (kDebugMode) {
         print("Erro ao converter imagem para Base64: $e");
       }
-      return null;
     }
+    return null;
   }
 }
 

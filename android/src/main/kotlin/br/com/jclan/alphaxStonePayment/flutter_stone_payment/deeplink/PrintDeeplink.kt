@@ -4,7 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import br.com.jclan.alphaxStonePayment.flutter_stone_payment.services.Print
+import br.com.jclan.alphaxStonePayment.flutter_stone_payment.services.GenerateBitmap
 import com.google.gson.Gson
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 
@@ -17,7 +17,7 @@ class PrintDeeplink: Deeplink {
             validatePrintContent(printableContent)
 
             val gson = Gson()
-            val printableToJson = gson.toJson(Print().convertPrintableItemsToImageBase64(binding.activity, printableContent!!))
+            val printableToJson = gson.toJson(GenerateBitmap().convertPrintableItemsToImageBase64(binding.activity, printableContent!!))
             val uriBuilder = Uri.Builder()
 
             uriBuilder.authority("print")
@@ -30,7 +30,6 @@ class PrintDeeplink: Deeplink {
 
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             intent.data = uriBuilder.build()
-            Log.d("Antes do startActivity", "$intent")
             binding.activity.startActivity(intent)
 
             return Bundle().apply {
