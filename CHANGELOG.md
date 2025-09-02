@@ -33,3 +33,10 @@
 
 # 1.1.5
 * fixed bugs
+
+# 1.1.6
+* Printing Improvement
+
+    - Replaced the line-by-line printing process with bitmap generation.
+
+    - Printing is now performed directly from the bitmap, ensuring better performance, consistent layout, and reduced errors.

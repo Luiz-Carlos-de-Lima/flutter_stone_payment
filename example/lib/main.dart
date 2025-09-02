@@ -756,50 +756,7 @@ class _PrintPageState extends State<_PrintPage> {
                         : () async {
                             try {
                               final flutterStonePaymentPlugin = FlutterStonePayment();
-                              final print = StonePrintPayload(
-                                  printableContent: List<StoneContentprint>.from([
-                                    StoneContentprint(
-                                        type: StonePrintType.text,
-                                        content: '''                 JCLAN SISTEMAS                 
-------------------------------------------------
-          BAR           
-================================================
-Comanda: 44             
-------------------------------------------------
-Entregar na Mesa: 12                            
-------------------------------------------------
-IMP: 01/2 (BR)                                  
-At: 0 - Suporte                                 
-Term: 1                       Dt: 25/08/25 11:01
-================================================
-Qtde - Produto                                  
-------------------------------------------------
-1 - FANTA UVA                                   
-------------------------------------------------
-                  Data Impressao: 25/08/25 11:01
-                                                                 JCLAN SISTEMAS                 
-------------------------------------------------
-          BAR           
-================================================
-Comanda: 44             
-------------------------------------------------
-Entregar na Mesa: 12                            
-------------------------------------------------
-IMP: 11/2 (BR)                                  
-At: 0 - Suporte                                 
-Term: 1                       Dt: 25/08/25 11:01
-================================================
-Qtde - Produto                                  
-------------------------------------------------
-1 - DEL VALLE MARACUJA                          
-------------------------------------------------
-                  Data Impressao: 25/08/25 11:01
-''',
-                                        size: StonePrintSize.small,
-                                        ignoreLineBreak: true,
-                                        align: StonePrintAlign.left)
-                                  ]),
-                                  showFeedbackScreen: true);
+                              final print = StonePrintPayload(printableContent: List<StoneContentprint>.from(_receiptContent), showFeedbackScreen: false);
                               await flutterStonePaymentPlugin.print(printPayload: print);
                               ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Impressão realizada com sucesso!")));
                               setState(() {});
