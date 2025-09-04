@@ -3,35 +3,36 @@ package br.com.jclan.alphaxStonePayment.flutter_stone_payment.deeplink
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import br.com.jclan.alphaxStonePayment.flutter_stone_payment.services.GenerateBitmap
+import br.com.jclan.alphaxStonePayment.flutter_stone_payment.services.Worker
 import com.google.gson.Gson
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 
 class PrintDeeplink: Deeplink {
     override fun startDeeplink(binding: ActivityPluginBinding, bundle: Bundle): Bundle {
         try {
-            val showFeedbackScreen: Boolean = bundle.getBoolean("show_feedback_screen") ?: false
-            val printableContent: List<Bundle>? = bundle.getParcelableArrayList("printable_content")
+            Worker.postToWorkerThread {
+                    val showFeedbackScreen: Boolean = bundle.getBoolean("show_feedback_screen") ?: false
+                    val printableContent: List<Bundle>? = bundle.getParcelableArrayList("printable_content")
 
-            validatePrintContent(printableContent)
+                    validatePrintContent(printableContent)
 
-            val gson = Gson()
-            val printableToJson = gson.toJson(GenerateBitmap().convertPrintableItemsToImageBase64(binding.activity, printableContent!!))
-            val uriBuilder = Uri.Builder()
+                    val gson = Gson()
+                    val printableToJson = gson.toJson(GenerateBitmap().convertPrintableItemsToImageBase64(binding.activity, printableContent!!))
+                    val uriBuilder = Uri.Builder()
 
-            uriBuilder.authority("print")
-            uriBuilder.scheme("printer-app")
-            uriBuilder.appendQueryParameter("SHOW_FEEDBACK_SCREEN", showFeedbackScreen.toString())
-            uriBuilder.appendQueryParameter("PRINTABLE_CONTENT", printableToJson)
-            uriBuilder.appendQueryParameter("SCHEME_RETURN", "return_print")
+                    uriBuilder.authority("print")
+                    uriBuilder.scheme("printer-app")
+                    uriBuilder.appendQueryParameter("SHOW_FEEDBACK_SCREEN", showFeedbackScreen.toString())
+                    uriBuilder.appendQueryParameter("PRINTABLE_CONTENT", printableToJson)
+                    uriBuilder.appendQueryParameter("SCHEME_RETURN", "return_print")
 
-            val intent = Intent(Intent.ACTION_VIEW)
+                    val intent = Intent(Intent.ACTION_VIEW)
 
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            intent.data = uriBuilder.build()
-            binding.activity.startActivity(intent)
-
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    intent.data = uriBuilder.build()
+                    binding.activity.startActivity(intent)
+            }
             return Bundle().apply {
                 putString("code", "SUCCESS")
             }

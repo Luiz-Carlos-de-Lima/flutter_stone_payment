@@ -40,3 +40,11 @@
     - Replaced the line-by-line printing process with bitmap generation.
 
     - Printing is now performed directly from the bitmap, ensuring better performance, consistent layout, and reduced errors.
+
+# 1.1.7
+
+* Added printing processing on a separate thread from the main thread.
+
+# 1.1.8
+
+* Reduced `compileSdk` requirement to improve compatibility with older projects.
